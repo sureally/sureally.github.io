@@ -1,19 +1,74 @@
 ---
 layout: post
-title:  "解题报告"
+title:  "LeetCode 894 解题报告"
 date:   2018-09-06 14:51:35 +0800
 categories: LeetCode
 ---
-[LeetCode 894]题目：
-
+######[LeetCode 894] 题目：  
 完整二叉树是一类二叉树，其中每个结点恰好有 0 或 2 个子结点。返回包含 N 个结点的所有可能完整二叉树的列表。 
-答案的每个元素都是一个可能树的根结点。答案中每个树的每个结点都必须有 node.val=0。你可以按任何顺序返回树的最终列表。  
+答案的每个元素都是一个可能树的根结点。答案中每个树的每个结点都必须有`node.val=0`。你可以按任何顺序返回树的最终列表。  
 
-实例：
-
-输入：`7`
-
+######实例：
+输入：`7`  
 输出：`[[0,0,0,null,null,0,0,null,null,0,0],[0,0,0,null,null,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,null,null,null,null,0,0],[0,0,0,0,0,null,null,0,0]]`
+
+######解题思路：  
+所有能构成的树，需要把所有节点都求出来，思路就是递归。  
+同时，考虑返回一个列表，也就是每个能构成树的根节点都要放在这个列表里面。  
+递归总是从上而下的，递归到最后就是子节点。在返回的时候声明一个节点作为头节点`root`，然后左右递归的子返回值作为其子节点，最后返回这个`root`。  
+
+######代码：  
+```java
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+/**
+ * @ClassName FBT
+ * @Description
+ * @Author shuWenjun
+ * @Date 2018/9/6 14:42
+ * @Version 1.0
+ **/
+
+//Definition for a binary tree node.
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) {
+        val = x;
+    }
+}
+
+public class FBT {
+    // 避免重复计算， 缓存已经计算过的
+    Map<Integer, List<TreeNode>> memo = new HashMap<>();
+    public List<TreeNode> allPossibleFBT(int N){
+        if (!memo.containsKey(N)){
+            List<TreeNode> ans = new LinkedList<>();
+            if (N == 1){
+                ans.add(new TreeNode(0));
+            } else if (N % 2 == 1){ // 只有奇数个，才能构成“完整二叉树”
+                for (int x = 0; x < N; ++x){
+                    int y = N - 1 - x;
+                    for (TreeNode left : allPossibleFBT(x)){
+                        for (TreeNode right : allPossibleFBT(y)){
+                            TreeNode bns = new TreeNode(0);
+                            bns.left = left;
+                            bns.right = right;
+                            ans.add(bns);
+                        }
+                    }
+                }
+            }
+            memo.put(N, ans);
+        }
+        return memo.get(N);
+    }
+}
+
+```
 
 [LeetCode 894]: https://leetcode.com/problems/all-possible-full-binary-trees/description
 
