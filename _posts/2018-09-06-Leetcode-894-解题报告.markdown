@@ -51,7 +51,7 @@ public class FBT {
                 ans.add(new TreeNode(0));
             } else if (N % 2 == 1){ // 只有奇数个，才能构成“完整二叉树”
                 for (int x = 0; x < N; ++x){
-                    int y = N - 1 - x;
+                    int y = N - 1 - x; // 
                     for (TreeNode left : allPossibleFBT(x)){
                         for (TreeNode right : allPossibleFBT(y)){
                             TreeNode bns = new TreeNode(0);
