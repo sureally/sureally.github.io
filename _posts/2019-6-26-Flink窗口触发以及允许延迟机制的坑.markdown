@@ -1,0 +1,373 @@
+---
+layout: post
+title:  "Distributed Shell!"
+date:   2019-06-26 21:29:12 +0800
+categories: hadoop
+---
+
+问题描述
+---
+本想使用flink完成数据流（可能有一定的乱序问题）的每隔一段时间统计工作。在数据流非乱序的情况下，本地测试没有问题，但是上线后，数据流中部分数据是乱序的导致了一系列不期望的结果出现。
+
+问题重现以及问题代码
+---
+复现问题代码
+```
+// 一个POJO类，两个属性，一个记录时间戳一个记录值
+class Model {
+  @BeanProperty
+  var timestamp = 0L
+  @BeanProperty
+  var value = 0L
+
+  def this(t: Long, v: Long) {
+    this()
+    timestamp = t
+    value = v
+  }
+  override def toString = s"Model(timestamp=$timestamp, value=$value)"
+}
+```
+```
+  @Test
+  def test(): Unit = {
+    // 模拟数据
+    var list = new util.ArrayList[Model]
+    for (i <- 1 to 20000) {
+      list.add(new Model(new Random().nextInt(1000).toLong, 1L))
+    }
+    
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    // 设定eventTime
+    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    val metricEventStream = env.fromCollection(list.asScala).setParallelism(1)
+    // 提取水印以及eventTime
+    val withTimeStream = metricEventStream.assignTimestampsAndWatermarks(
+      new BoundedOutOfOrdernessTimestampExtractor[Model](Time.milliseconds(0L)) {
+        override def extractTimestamp(element: Model): Long = element.timestamp
+      }).setParallelism(1)
+
+
+    val sinkStream = withTimeStream.setParallelism(1)
+      .keyBy(_ => "1")
+      .timeWindow(Time.milliseconds(60)) // 统计周期为60毫秒
+      .allowedLateness(Time.milliseconds(50L)) // 允许延迟50毫秒
+      .reduce((a, b) => {
+        a.value += b.value
+        a}).setParallelism(1)
+
+    sinkStream.print("sum: ").setParallelism(1)
+
+    println(env.getExecutionPlan)
+    env.execute()
+  }
+
+
+object o {
+  var sum = 0L
+}
+```
+- 输出结果  
+这个一个符合预期的结果。这没有问题
+```
+final: 1195
+sum: > Model(timestamp=16, value=1195)
+final: 2369
+sum: > Model(timestamp=98, value=1174)
+final: 3571
+sum: > Model(timestamp=152, value=1202)
+final: 4782
+sum: > Model(timestamp=184, value=1211)
+final: 5968
+sum: > Model(timestamp=266, value=1186)
+final: 7200
+sum: > Model(timestamp=349, value=1232)
+final: 8431
+sum: > Model(timestamp=383, value=1231)
+final: 9651
+sum: > Model(timestamp=468, value=1220)
+final: 10898
+sum: > Model(timestamp=498, value=1247)
+final: 12144
+sum: > Model(timestamp=548, value=1246)
+final: 13326
+sum: > Model(timestamp=634, value=1182)
+final: 14548
+sum: > Model(timestamp=713, value=1222)
+final: 15660
+sum: > Model(timestamp=745, value=1112)
+final: 16861
+sum: > Model(timestamp=788, value=1201)
+final: 18061
+sum: > Model(timestamp=891, value=1200)
+final: 19228
+sum: > Model(timestamp=940, value=1167)
+final: 20000
+sum: > Model(timestamp=993, value=772)
+```
+
+- 异常情况
+现在增大输入的数据量
+```
+var list = new util.ArrayList[Model]
+for (i <- 1 to 500000) {
+  list.add(new Model(new Random().nextInt(1000).toLong, 1L))
+}
+```
+输出结果  
+显然不符合预期
+```
+sum: > Model(timestamp=0, value=12041)
+final: 12041
+sum: > Model(timestamp=77, value=11615)
+final: 23656
+sum: > Model(timestamp=152, value=11857)
+final: 35513
+sum: > Model(timestamp=190, value=11905)
+final: 47418
+sum: > Model(timestamp=249, value=12039)
+final: 59457
+sum: > Model(timestamp=313, value=12068)
+final: 71525
+sum: > Model(timestamp=368, value=11955)
+final: 83480
+sum: > Model(timestamp=454, value=11940)
+final: 95420
+sum: > Model(timestamp=485, value=11984)
+final: 107404
+sum: > Model(timestamp=579, value=11973)
+final: 119377
+sum: > Model(timestamp=623, value=12023)
+final: 131400
+sum: > Model(timestamp=667, value=11855)
+final: 143255
+sum: > Model(timestamp=731, value=12106)
+final: 155361
+sum: > Model(timestamp=821, value=11804)
+final: 167165
+sum: > Model(timestamp=858, value=11740)
+final: 178905
+sum: > Model(timestamp=932, value=11793)
+final: 190698
+sum: > Model(timestamp=932, value=11794)
+final: 202492
+sum: > Model(timestamp=932, value=11795)
+final: 214287
+sum: > Model(timestamp=932, value=11796)
+final: 226083
+sum: > Model(timestamp=932, value=11797)
+final: 237880
+sum: > Model(timestamp=932, value=11798)
+final: 249678
+sum: > Model(timestamp=932, value=11799)
+final: 261477
+sum: > Model(timestamp=932, value=11800)
+final: 273277
+sum: > Model(timestamp=932, value=11801)
+final: 285078
+sum: > Model(timestamp=932, value=11802)
+final: 296880
+sum: > Model(timestamp=932, value=11803)
+final: 308683
+sum: > Model(timestamp=932, value=11804)
+final: 320487
+sum: > Model(timestamp=932, value=11805)
+final: 332292
+sum: > Model(timestamp=932, value=11806)
+final: 344098
+sum: > Model(timestamp=932, value=11807)
+final: 355905
+sum: > Model(timestamp=932, value=11808)
+final: 367713
+sum: > Model(timestamp=932, value=11809)
+final: 379522
+sum: > Model(timestamp=932, value=11810)
+final: 391332
+sum: > Model(timestamp=932, value=11811)
+final: 403143
+sum: > Model(timestamp=932, value=11812)
+final: 414955
+sum: > Model(timestamp=932, value=11813)
+final: 426768
+sum: > Model(timestamp=932, value=11814)
+final: 438582
+sum: > Model(timestamp=932, value=11815)
+final: 450397
+sum: > Model(timestamp=932, value=11816)
+final: 462213
+sum: > Model(timestamp=932, value=11817)
+final: 474030
+sum: > Model(timestamp=932, value=11818)
+final: 485848
+sum: > Model(timestamp=932, value=11819)
+final: 497667
+sum: > Model(timestamp=932, value=11820)
+final: 509487
+sum: > Model(timestamp=932, value=11821)
+final: 521308
+sum: > Model(timestamp=932, value=11822)
+final: 533130
+sum: > Model(timestamp=932, value=11823)
+final: 544953
+sum: > Model(timestamp=932, value=11824)
+final: 556777
+sum: > Model(timestamp=932, value=11825)
+final: 568602
+sum: > Model(timestamp=932, value=11826)
+final: 580428
+sum: > Model(timestamp=932, value=11827)
+final: 592255
+sum: > Model(timestamp=932, value=11828)
+final: 604083
+sum: > Model(timestamp=932, value=11829)
+final: 615912
+sum: > Model(timestamp=932, value=11830)
+final: 627742
+sum: > Model(timestamp=932, value=11831)
+final: 639573
+sum: > Model(timestamp=932, value=11832)
+final: 651405
+sum: > Model(timestamp=932, value=11833)
+final: 663238
+sum: > Model(timestamp=932, value=11834)
+final: 675072
+sum: > Model(timestamp=932, value=11835)
+final: 686907
+sum: > Model(timestamp=932, value=11836)
+final: 698743
+sum: > Model(timestamp=932, value=11837)
+final: 710580
+sum: > Model(timestamp=932, value=11838)
+final: 722418
+sum: > Model(timestamp=932, value=11839)
+final: 734257
+sum: > Model(timestamp=932, value=11840)
+final: 746097
+sum: > Model(timestamp=932, value=11841)
+final: 757938
+sum: > Model(timestamp=932, value=11842)
+final: 769780
+sum: > Model(timestamp=932, value=11843)
+final: 781623
+sum: > Model(timestamp=932, value=11844)
+final: 793467
+sum: > Model(timestamp=932, value=11845)
+final: 805312
+sum: > Model(timestamp=932, value=11846)
+final: 817158
+sum: > Model(timestamp=932, value=11847)
+final: 829005
+sum: > Model(timestamp=932, value=11848)
+final: 840853
+sum: > Model(timestamp=932, value=11849)
+final: 852702
+sum: > Model(timestamp=932, value=11850)
+final: 864552
+sum: > Model(timestamp=932, value=11851)
+final: 876403
+sum: > Model(timestamp=932, value=11852)
+final: 888255
+sum: > Model(timestamp=932, value=11853)
+final: 900108
+sum: > Model(timestamp=932, value=11854)
+final: 911962
+sum: > Model(timestamp=932, value=11855)
+final: 923817
+sum: > Model(timestamp=932, value=11856)
+final: 935673
+sum: > Model(timestamp=932, value=11857)
+final: 947530
+sum: > Model(timestamp=932, value=11858)
+
+
+...还有许多，太多就不放上来了这 已经超出500000了。
+```
+
+问题来源及分析
+---
+观察异常输出的结果可以发现，value值是逐渐累加的。也就是reduce没进行一次计算后，就将结果从窗口的输出到了后面的算子。
+
+- 原因  
+ `.allowedLateness(Time.milliseconds(50L))` 
+允许延迟，当延迟数据来后会触发输出，具体原因需要研究源码。
+
+- 总结   
+    - evenTime > watermark 触发window运算
+    - reduce本身是增量运算的，即来一条数据增量计算一条
+    - allowedLateness 的机制是将窗口的数据缓存一定的时间。不然窗口的数据在到达watermark的时候就被清除了。
+
+- 疑问（有时间研究源码解决）
+    - 如果机制和总计的一致，那么小数据量的时候为什么没有输出预期的乱序结果？（窗口内部有缓存窗格的代码？）
+
+解决办法
+---
+由允许延迟解决乱序，改用watermark来一定情况的解决乱序问题。
+
+```
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    val metricEventStream = env.fromCollection(list.asScala).setParallelism(1)
+    val withTimeStream = metricEventStream.assignTimestampsAndWatermarks(
+    // watermark 相隔50毫秒
+      new BoundedOutOfOrdernessTimestampExtractor[Model](Time.milliseconds(50L)) {
+        override def extractTimestamp(element: Model): Long = element.timestamp
+      }).setParallelism(1)
+
+
+    val sinkStream = withTimeStream.setParallelism(1)
+      .keyBy(_ => "1")
+      .timeWindow(Time.milliseconds(60))
+      .allowedLateness(Time.milliseconds(0L)) // 不设定，也相当于设定为0
+      .reduce((a, b) => {
+        a.value += b.value
+        a}).setParallelism(1)
+
+    sinkStream.print("sum: ").setParallelism(1)
+    // 静态变量记录每个窗口的相加值
+    sinkStream.map(x => {
+      o.sum += x.value
+      println("final: " + o.sum)
+    }).setParallelism(1)
+
+    println(env.getExecutionPlan)
+    env.execute()
+```
+- 运行结果  
+虽然部分超时数据被丢弃了，但是也符合预期。
+```
+sum: > Model(timestamp=27, value=15952)
+final: 15952
+sum: > Model(timestamp=85, value=16388)
+final: 32340
+sum: > Model(timestamp=120, value=16173)
+final: 48513
+sum: > Model(timestamp=224, value=15960)
+final: 64473
+sum: > Model(timestamp=252, value=15930)
+final: 80403
+sum: > Model(timestamp=335, value=16224)
+final: 96627
+sum: > Model(timestamp=385, value=16119)
+final: 112746
+sum: > Model(timestamp=426, value=16062)
+final: 128808
+sum: > Model(timestamp=484, value=16049)
+final: 144857
+sum: > Model(timestamp=583, value=16074)
+final: 160931
+sum: > Model(timestamp=603, value=16199)
+final: 177130
+sum: > Model(timestamp=700, value=16235)
+final: 193365
+sum: > Model(timestamp=774, value=16313)
+final: 209678
+sum: > Model(timestamp=801, value=16021)
+final: 225699
+sum: > Model(timestamp=841, value=15802)
+final: 241501
+sum: > Model(timestamp=919, value=29968)
+final: 271469
+sum: > Model(timestamp=992, value=20073)
+final: 291542
+```
+
