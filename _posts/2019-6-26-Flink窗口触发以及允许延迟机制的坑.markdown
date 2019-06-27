@@ -5,6 +5,7 @@ date:   2019-06-26 21:29:12 +0800
 categories: hadoop
 ---
 
+
 问题描述
 ---
 本想使用flink完成数据流（可能有一定的乱序问题）的每隔一段时间统计工作。在数据流非乱序的情况下，本地测试没有问题，但是上线后，数据流中部分数据是乱序的导致了一系列不期望的结果出现。
@@ -292,12 +293,110 @@ sum: > Model(timestamp=932, value=11858)
 允许延迟，当延迟数据来后会触发输出，具体原因需要研究源码。
 
 - 总结   
-    - evenTime > watermark 触发window运算
-    - reduce本身是增量运算的，即来一条数据增量计算一条
-    - allowedLateness 的机制是将窗口的数据缓存一定的时间。不然窗口的数据在到达watermark的时候就被清除了。
+    - watermark > windowEnd 触发window运算
+    - reduce本身被flink优化过是增量运算的，即来一条数据增量计算一条
+    - allowedLateness的机制是将窗口的数据缓存一定的时间。不然窗口的数据在到达watermark的时候就被清除了。如果当延迟数据到达窗口后，会触发窗口计算的（发出数据）。
 
 - 疑问（有时间研究源码解决）
     - 如果机制和总计的一致，那么小数据量的时候为什么没有输出预期的乱序结果？（窗口内部有缓存窗格的代码？）
+- 解决上述疑问
+    - 从源码中来看的确是，watermark达到窗口最后时间后就会触发窗口计算（并将结果发出）。至于为何这里的模拟结果不符合预期是因为由于运算速度过快，窗口内部逻辑还没来得及处理就接收到了接下来的延迟消息。
+    - 模拟代码
+    ```
+        class Model {
+      @BeanProperty
+      var timestamp = 0L
+      @BeanProperty
+      var value = 0L
+    
+      def this(t: Long, v: Long) {
+        this()
+        timestamp = t
+        value = v
+      }
+      override def toString = s"Model(timestamp=$timestamp, value=$value)"
+    }
+    
+    class Other{
+    
+      @Test
+      def test(): Unit = {
+        val env = StreamExecutionEnvironment.getExecutionEnvironment
+        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    
+        val metricEventStream = env.addSource(new MockSource).setParallelism(1)
+        val withTimeStream = metricEventStream.assignTimestampsAndWatermarks(
+          new BoundedOutOfOrdernessTimestampExtractor[Model](Time.milliseconds(0L)) {
+            override def extractTimestamp(element: Model): Long = element.timestamp
+          }).setParallelism(1)
+    
+    
+        val sinkStream = withTimeStream.setParallelism(1)
+          .keyBy(_ => "a")
+          .timeWindow(Time.milliseconds(60))
+          .allowedLateness(Time.milliseconds(20L))
+          .reduce((a, b) => {
+            a.value += b.value
+            a}).setParallelism(1)
+    
+        sinkStream.print("sum: ").setParallelism(1)
+        // 静态变量记录每个窗口的相加值
+        sinkStream.map(x => {
+          o.sum += x.value
+          println("final: " + o.sum)
+        }).setParallelism(1)
+    
+        println(env.getExecutionPlan)
+        env.execute()
+      }
+    
+    }
+    
+    object o {
+      var sum = 0L
+    
+      var list = new util.ArrayList[Model]
+      list.add(new Model(1L, 1L))
+      list.add(new Model(75L, 1L))
+      list.add(new Model(59L, 1L))
+      list.add(new Model(51L, 1L))
+      list.add(new Model(51L, 1L))
+      list.add(new Model(81L, 1L))
+      list.add(new Model(141L, 1L))
+      list.add(new Model(81L, 1L))
+      list.add(new Model(79L, 1L))
+      list.add(new Model(61L, 1L))
+    }
+    
+    class MockSource extends SourceFunction[Model] {
+    
+    
+      override def run(ctx: SourceFunction.SourceContext[Model]): Unit = {
+        for (model <- o.list.asScala) {
+          ctx.collect(model)
+          Thread.sleep(20000L) // 每个消息的时间间隔
+        }
+      }
+    
+      override def cancel(): Unit = {}
+    
+    }
+    ```
+    - 输出结果, 完全符合预期结果
+    ```
+    sum: > Model(timestamp=1, value=1)
+    final: 1
+    sum: > Model(timestamp=1, value=2)
+    final: 3
+    sum: > Model(timestamp=1, value=3)
+    final: 6
+    sum: > Model(timestamp=1, value=4)
+    final: 10
+    sum: > Model(timestamp=75, value=2)
+    final: 12
+    sum: > Model(timestamp=141, value=1)
+    final: 13
+    ```
 
 解决办法
 ---
@@ -369,5 +468,20 @@ sum: > Model(timestamp=919, value=29968)
 final: 271469
 sum: > Model(timestamp=992, value=20073)
 final: 291542
+```
+
+源码解析
+---
+![image](http://note.youdao.com/yws/res/4505/840F8CFDC3BE4774AA1B9DEEE947AF1F)
+
+对于TumblingEventTimeWindows来说，实现的方法
+
+- Trigger  
+EventTimeTrigger 触发机制是：reates an event-time trigger that fires once the watermark passes the end of the window. Once the trigger fires all elements are discarded. Elements that arrive late immediately trigger window evaluation with just this one element.（简单来说就是，wartermark > window end time 变触发窗口计算，然后触发计算后释放所有元素，延迟到达的数据触发计算仅单独与自己。）
+```
+@Override
+public Trigger<Object, TimeWindow> getDefaultTrigger(StreamExecutionEnvironment env) {
+	return EventTimeTrigger.create();
+}
 ```
 
