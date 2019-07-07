@@ -45,6 +45,7 @@ theme: minima
    - README.md
    - /_drafts
    - .gitignore
+   - /Test
 
 ## => Paginate
 ##############################
