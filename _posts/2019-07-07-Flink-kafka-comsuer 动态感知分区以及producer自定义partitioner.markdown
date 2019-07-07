@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "
-Flink kafka comsuer 动态感知分区以及producer自定义partitioner.markdown"
-date:   2019-07-07 21:29:34 +0800
+Flink kafka comsuer 动态感知分区以及producer自定义partitioner"
+date:   2019-07-07 13:59:34 +0800
 categories: Flink
 ---
 
