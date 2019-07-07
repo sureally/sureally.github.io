@@ -35,7 +35,7 @@ author:
 
 # Build settings
 markdown: kramdown
-theme: minima
+theme: jekyll-theme-hacker
 
 
 # Exclude from processing.
