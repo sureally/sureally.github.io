@@ -37,7 +37,7 @@ flink kafka producer sink 默认的分区策略是`FlinkKafkaPartitioner`，一�
 A、B），而分区有四个（分别是a、b、c、d），那么相对应的方式便是，A sink到a，B sink到b。上述默认方式，导致的一个问题就是不能分区数据倾斜问题。实际应用举例，还是一个日志处理系统，存在一个kafka topic作为中间层，上承接若干系统的数据清洗模块，下承接单个规则引擎模块。如此，便希望前置的各个数据清洗模块能够将数据均匀的发送的各个分区，所以需要自定义分区接口。（还有一个办法便是，在flink中sink的并行度设定为和分区个数一样，但是这个方法造成的一个问题便是，资源的浪费）
 解决方案
 ---
-- 实现自定义分区
+- 实现自定义分区    
 ```
 /**
   * 根据record 的hashcode 进行 轮换分区
@@ -50,7 +50,7 @@ class CustomPartitioner[T] extends FlinkKafkaPartitioner[T] {
 }
 ```
 
-- 初始化producer  
+- 初始化producer     
 
 ```
 object CustomKafkaProducer {
