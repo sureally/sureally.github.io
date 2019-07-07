@@ -18,8 +18,8 @@
 ##############################
 text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
 highlight_theme: tomorrow # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
-url     : blog # the base hostname & protocol for your site e.g. https://www.someone.com
-baseurl :  # https://github.com/sureally # does not include hostname
+url     : https://sureally.github.io/blog # the base hostname & protocol for your site e.g. https://www.someone.com
+baseurl : # https://github.com/sureally # does not include hostname
 title   : BLOG
 description: > # this means to ignore newlines until "Language & timezone"
   学习使人快乐
