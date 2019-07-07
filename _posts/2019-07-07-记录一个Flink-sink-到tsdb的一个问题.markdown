@@ -32,7 +32,7 @@ class CustomTsdbSink extends SinkFunction[String] {
   val ns = System.nanoTime()
   // 提高为ns精度，防止time+tag一样使得influxdb被冲刷掉;
   // 这里也存在小概率可能导致被覆盖的问题
-  val timestampNS = TimeUnit.NANOSECONDS.convert(new Data().getTime, TimeUnit.MILLISECONDS)
+  val timestampNS = TimeUnit.NANOSECONDS.convert(new Date().getTime, TimeUnit.MILLISECONDS)
 
   // 1000000L ns - ms 之间相隔的单位
   builder.time(timestampNS + ns % 1000000L, TimeUnit.NANOSECONDS)
