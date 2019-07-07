@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: article
 title:  "Distributed Shell!"
 date:   2019-03-27 15:29:12 +0800
 categories: hadoop

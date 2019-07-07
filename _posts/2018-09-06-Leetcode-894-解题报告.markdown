@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "LeetCode 894 解题报告"
 date:   2018-09-06 14:51:35 +0800
 categories: LeetCode

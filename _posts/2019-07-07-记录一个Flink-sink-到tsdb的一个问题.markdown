@@ -5,8 +5,7 @@ date:   2019-07-07 14:23:34 +0800
 categories: Flink
 ---
 
-问题表现
-===
+# 问题表现
 - kafka topic 正在被消费且为offset为当前值
 - 在前一天启动的时候能够写入到tsdb
 - 在中间某个不确定时间点不能写入（查看kafka的确没有输入值）
@@ -14,11 +13,11 @@ categories: Flink
 - 重新启动，又能够写入到tsdb
 - flink job 中显示输入到sink算子中有数据在不断进入。
 
-问题定位
-===
+# 问题定位
+
 flink中实现的sink到tsdb的程序。
 
-```scala
+```
 /** tsdb
   * by shu wenjun
   * */
