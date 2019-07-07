@@ -13,29 +13,46 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: 博客
-email: shu_wenjun@qq.com
+text_skin: "ocean"
+title: BLOG
 description: >- # this means to ignore newlines until "baseurl:"
   我思故我在
 baseurl: "blog" # the subpath of your site, e.g. /blog
 url: "https://sureally.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: no
-github_username:  sureally
+
+## => Author and Social
+##############################
+author:
+  type      : # "person" (default), "organization"
+  name      : Shu Wenjun
+  url       : https://sureally.github.io
+  avatar    : # path or url of avatar image
+  bio       : WEll
+  email     : shu_wenjun@qq.com
+  github    : sureally
+
 
 # Build settings
 markdown: kramdown
 theme: minima
-plugins:
-  - jekyll-feed
+
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
 # to override the default setting.
-# exclude:
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+ exclude:
+   - Gemfile
+   - README.md
+   - /_drafts
+   - .gitignore
+
+## => Paginate
+##############################
+paginate: 12
+paginate_path: /page:num # don't change this unless for special need
+
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jemoji
