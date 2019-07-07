@@ -6,13 +6,13 @@ categories: Flink
 ---
 
 
-问题描述
----
+# 问题描述
+
 本想使用flink完成数据流（可能有一定的乱序问题）的每隔一段时间统计工作。在数据流非乱序的情况下，本地测试没有问题，但是上线后，数据流中部分数据是乱序的导致了一系列不期望的结果出现。
 
-问题重现以及问题代码
----
-复现问题代码
+# 问题重现以及问题代码
+
+## 复现问题代码
 ```
 // 一个POJO类，两个属性，一个记录时间戳一个记录值
 class Model {
@@ -68,7 +68,7 @@ object o {
   var sum = 0L
 }
 ```
-- 输出结果  
+ 输出结果  
 这个一个符合预期的结果。这没有问题
 
   ```bash
@@ -108,7 +108,7 @@ object o {
   sum: > Model(timestamp=993, value=772)
   ```
 
-- 异常情况
+## 异常情况
 现在增大输入的数据量
 ```
 var list = new util.ArrayList[Model]
@@ -285,15 +285,15 @@ for (i <- 1 to 500000) {
   ...还有许多，太多就不放上来了这 已经超出500000了
   ```
 
-问题来源及分析
----
+# 问题来源及分析
+
 观察异常输出的结果可以发现，value值是逐渐累加的。也就是reduce没进行一次计算后，就将结果从窗口的输出到了后面的算子。
 
-- 原因  
+## 原因  
  `.allowedLateness(Time.milliseconds(50L))` 
-允许延迟，当延迟数据来后会触发输出，具体原因需要研究源码。
+允许延迟，当延迟数据来后会触发输出，具体原因需要研究源码。   
 
-- 总结   
+## 总结   
     - watermark > windowEnd 触发window运算
     - reduce本身被flink优化过是增量运算的，即来一条数据增量计算一条
     - allowedLateness的机制是将窗口的数据缓存一定的时间。不然窗口的数据在到达watermark的时候就被清除了。如果当延迟数据到达窗口后，会触发窗口计算的（发出数据）。
@@ -399,8 +399,8 @@ for (i <- 1 to 500000) {
     final: 13
     ```
 
-解决办法
----
+# 解决办法
+
 由允许延迟解决乱序，改用watermark来一定情况的解决乱序问题。
 
 ```
@@ -432,7 +432,7 @@ for (i <- 1 to 500000) {
     println(env.getExecutionPlan)
     env.execute()
 ```
-- 运行结果  
+## 运行结果  
 虽然部分超时数据被丢弃了，但是也符合预期。
 ```
 sum: > Model(timestamp=27, value=15952)
@@ -471,9 +471,9 @@ sum: > Model(timestamp=992, value=20073)
 final: 291542
 ```
 
-源码解析
----
-![image]({{site.url}}assets/images/flink/TumblingEventTimeWindows.png)
+# 源码解析
+
+![image]({{site.url}}/assets/images/flink/TumblingEventTimeWindows.png)
 
 对于TumblingEventTimeWindows来说，实现的方法
 
