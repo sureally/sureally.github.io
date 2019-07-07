@@ -74,9 +74,11 @@ object CustomKafkaProducer {
     producer
   }
 }
-```scala
-这里存在一个坑，如果不是单独语句声明`val partitioner: FlinkKafkaPartitioner[String]`是不能通过编译的。
 ```
+
+这里存在一个坑，如果不是单独语句声明`val partitioner: FlinkKafkaPartitioner[String]`是不能通过编译的。
+
+```scala
 def getKafkaProducer(topic: String): FlinkKafkaProducer[String] = {
     val producer = new FlinkKafkaProducer(
       topic,
