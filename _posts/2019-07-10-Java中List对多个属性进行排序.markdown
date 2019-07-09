@@ -1,0 +1,177 @@
+---
+title: "Java中List对多个属性进行排序"
+date: 2019-07-10 00:32:55 +0800
+categories: Java-Utils
+---
+
+# 功能介绍
+`ListUtils` 功能类。实现`List<E>`对对象 `E` 中多种属性进行可选的升降序排序。    
+满足的功能要求：
+- List元素对象类型使用泛型
+- 可以按照List元素对象任意多属性进行排序，即可指定任意多对象
+- 元素对象可以是数字`(byte、short、int、long、float、double)`、日期`(java.util.Date)`、字符串
+  * 数字: 转换为字符串。PS: 3 和 13 转换成字符串需要在 3 前面填充 0。
+  * 日期: 转为long后再使用数字类型解决。 ？？ 日期精度毫秒？
+- 反射获取元素对象属性
+- 可指定任意个对象属性的排序方式，降序/升序
+  
+# 代码实现
+```java
+package com.netease.bdms.smilodon.kafkamonitor.util;
+
+import java.lang.reflect.Field;
+import java.text.NumberFormat;
+
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @ClassName com.netease.bdms.smilodon.kafkamonitor.util.ListUtils
+ * @Desciption list按元素对象多个属性排序
+ * @Author Shu WJ
+ * @DateTime 2019-07-09 15:50
+ * @Version 1.0
+ **/
+public class ListUtils {
+  private static Logger logger = LoggerFactory.getLogger(ListUtils.class);
+
+  /**
+   * 按照给定字段属性以及排序规则给list排序。所有属性同一种排序规则。
+   * @param list
+   * @param isAsc
+   * @param sortFieldNameArr
+   * @param <E>
+   */
+  public static <E> void sort(List<E> list, final boolean isAsc, final String... sortFieldNameArr) {
+    list.sort((a, b) -> {
+      int ret = 0;
+      try {
+        for (String s : sortFieldNameArr) {
+          ret = ListUtils.compareObject(s, isAsc, a, b);
+          if (0 != ret) {
+            break;
+          }
+        }
+      } catch (Exception e) {
+        logger.error("list sort cause a error, and the sort result maybe is worry: ", e);
+        // 如果排序逻辑对业务逻辑有相当影响，那么可以考虑终止程序
+//        throw new RuntimeException(e);
+      }
+      return ret;
+    });
+  }
+
+  /**
+   * 按照给定字段属性以及排序规则给list排序。每个属性可分别设定规则。
+   * @param list
+   * @param sortFieldNameArr
+   * @param sortTypeArr
+   * @param <E>
+   */
+  public static <E> void sort(List<E> list, final String[] sortFieldNameArr, final boolean[] sortTypeArr) {
+    if (sortFieldNameArr.length != sortTypeArr.length) {
+      throw new IllegalArgumentException("属性数组元素个数和升降序数组元素个数不相等");
+    }
+    list.sort((a, b) -> {
+      int ret = 0;
+      try {
+        for (int i = 0; i < sortFieldNameArr.length; i++) {
+          ret = ListUtils.compareObject(sortFieldNameArr[i], sortTypeArr[i], a, b);
+          if (0 != ret) {
+            break;
+          }
+        }
+      } catch (Exception e) {
+        logger.error("list sort cause a error, and the sort result maybe is worry: ", e);
+        // 如果排序逻辑对业务逻辑有相当影响，那么可以考虑终止程序
+//        throw new RuntimeException(e);
+      }
+      return ret;
+    });
+  }
+
+  /**
+   * 比较两个元素，其中：Number 和 Date 两种类型的属性转为字符串进行处理, Date 精确到毫秒。
+   * @param sortFieldName
+   * @param isAsc
+   * @param e1
+   * @param e2
+   * @param <E>
+   * @return
+   * @throws NoSuchFieldException
+   * @throws IllegalAccessException
+   */
+  private static <E> int compareObject(final String sortFieldName, final boolean isAsc, E e1, E e2)
+      throws NoSuchFieldException, IllegalAccessException {
+    Object value1 = ListUtils.forceGetFieldValue(e1, sortFieldName);
+    Object value2 = ListUtils.forceGetFieldValue(e2, sortFieldName);
+
+    return compareObject(value1, value2, isAsc);
+  }
+
+  /**
+   * 根据设定的排序方式，比较 obj1 和 obj2
+   * @param obj1
+   * @param obj2
+   * @param isAsc true 为升序
+   * @return
+   */
+  private static int compareObject(Object obj1, Object obj2, boolean isAsc) {
+    String str1 = obj1.toString();
+    String str2 = obj2.toString();
+    if (obj1 instanceof Number && obj2 instanceof Number) {
+      int maxlen = Math.max(str1.length(), str2.length());
+      str1 = ListUtils.addZero2Str((Number) obj1, maxlen);
+      str2 = ListUtils.addZero2Str((Number) obj2, maxlen);
+    } else if (obj1 instanceof Date && obj2 instanceof Date) {
+      long time1 = ((Date) obj1).getTime();
+      long time2 = ((Date) obj2).getTime();
+      return compareObject(time1, time2, isAsc);
+    }
+
+    return isAsc ? str1.compareTo(str2) : str2.compareTo(str1);
+  }
+
+  /**
+   * 数字转字符串，指定长度。
+   * @param numObj 数值对象
+   * @param length 指定转换后字符串的长度
+   * @return
+   */
+  private static String addZero2Str(Number numObj, int length) {
+    NumberFormat nf = NumberFormat.getInstance();
+    // 设置是否使用分组
+    nf.setGroupingUsed(false);
+    // 设置最大整数位数
+    nf.setMaximumIntegerDigits(length);
+    // 设置最小整数位数
+    nf.setMinimumIntegerDigits(length);
+    return nf.format(numObj);
+  }
+
+  /**
+   * 反射获取对象属性字段值。
+   * @param obj 对象
+   * @param fieldName 属性名
+   * @return field属性值
+   * @throws NoSuchFieldException
+   * @throws IllegalAccessException
+   */
+  private static Object forceGetFieldValue(Object obj, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+    Field field = obj.getClass().getDeclaredField(fieldName);
+    if (!field.isAccessible()) {
+      // 如果是private,protected修饰的属性，需要修改为可以访问的
+      field.setAccessible(true);
+    }
+    return field.get(obj);
+  }
+
+}
+
+```
+
+# 参考文档
+- https://blog.csdn.net/enable1234___/article/details/53224740
