@@ -3,20 +3,25 @@ title:  "leetcode-894 解题报告"
 date:   2018-09-06 14:51:35 +0800
 categories: leetcode
 ---
-#### [LeetCode 894] 题目：  
+# [题目描述](https://leetcode.com/problems/all-possible-full-binary-trees/description
+)
+## 介绍
 完整二叉树是一类二叉树，其中每个结点恰好有 0 或 2 个子结点。返回包含 N 个结点的所有可能完整二叉树的列表。 
 答案的每个元素都是一个可能树的根结点。答案中每个树的每个结点都必须有`node.val=0`。你可以按任何顺序返回树的最终列表。  
 
-#### 实例：  
+## 示例
+```
 输入：`7`  
 输出：`[[0,0,0,null,null,0,0,null,null,0,0],[0,0,0,null,null,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,null,null,null,null,0,0],[0,0,0,0,0,null,null,0,0]]`
+```
 
-#### 解题思路：   
+## 解题思路
+## 分析
 所有能构成的树，需要把所有节点都求出来，思路就是递归。  
 同时，考虑返回一个列表，也就是每个能构成树的根节点都要放在这个列表里面。  
 递归总是从上而下的，递归到最后就是子节点。在返回的时候声明一个节点作为头节点`root`，然后左右递归的子返回值作为其子节点，最后返回这个`root`。  
 
-#### 代码：  
+## 代码
 ```java
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -68,6 +73,3 @@ public class FBT {
 }
 
 ```
-
-[LeetCode 894]: https://leetcode.com/problems/all-possible-full-binary-trees/description
-
