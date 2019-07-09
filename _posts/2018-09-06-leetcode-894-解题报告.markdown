@@ -1,7 +1,7 @@
 ---
-title:  "LeetCode 894 解题报告"
+title:  "leetcode-894 解题报告"
 date:   2018-09-06 14:51:35 +0800
-categories: LeetCode
+categories: leetcode
 ---
 #### [LeetCode 894] 题目：  
 完整二叉树是一类二叉树，其中每个结点恰好有 0 或 2 个子结点。返回包含 N 个结点的所有可能完整二叉树的列表。 
