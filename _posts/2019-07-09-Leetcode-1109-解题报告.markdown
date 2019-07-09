@@ -21,7 +21,7 @@ categories: Leetcode
 
 ## 分析
 参考了别人的思路-差分法，时间复杂度为O(n)。    
-很巧妙，define a array `diff[i] = booking[i] - booking[i-1]` and array `booking` represents
+It's a nice idea，define a array `diff[i] = booking[i] - booking[i-1]` and array `booking` represents
 seats number of each flight, that is the differ of continue two flight.
 
 
