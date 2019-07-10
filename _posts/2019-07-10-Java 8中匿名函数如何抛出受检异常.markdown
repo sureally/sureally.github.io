@@ -1,0 +1,106 @@
+---
+layout: article
+title: "Java中匿名函数如何抛出受检异常"
+date: 2019-07-10 22:18:07 +0800
+categories: Java
+---
+
+# 问题来源
+在上一篇介绍如何实现对List元素对象进行多属性排序的代码实现中，发现原作者实现的时候，将匿名
+函数中异常直接try-catch捕获后打印并未抛出或其他处理，相当于把异常吞了，这样会导致业务
+逻辑无法接收到异常信息。因此试图改变并抛出异常，结果发现无法抛出受检异常。运行时异常是
+可以抛出的。
+
+```java
+// 编译不通过
+list.sort((a, b) -> {
+  int ret = 0;
+  try {
+    for (String s : sortFieldNameArr) {
+      ret = ListUtils.compareObject(s, isAsc, a, b);
+      if (0 != ret) {
+        break;
+      }
+    }
+  } catch (Exception e) {
+    // 抛出异常(其实是 NoSuchFieldException, IllegalAccessException)，编译不通过。
+    throw e;
+  }
+  return ret;
+});
+
+// 编译通过
+list.sort((a, b) -> {
+  int ret = 0;
+  try {
+    for (String s : sortFieldNameArr) {
+      ret = ListUtils.compareObject(s, isAsc, a, b);
+      if (0 != ret) {
+        break;
+      }
+    }
+  } catch (Exception e) {
+    // 抛出运行时异常，编译通过。
+    throw new RuntimeException(e);
+  }
+  return ret;
+});
+```
+
+# 问题分析
+
+## 受检异常/运行时异常
+- 受检异常(checked exception)    
+表示代码中必须处理该异常，比如try-catch捕获。
+- 运行时异常(runtime exception)    
+表示代码中可以不进行处理，emmm，也就是代码质量不佳导致的。
+
+## 分析
+抛出运行时异常编译通过的原因，即运行中才进行处理，而编译器在编译阶段并不关心。    
+
+而，直接抛出受检异常，编译器强制要求开发人员在编译阶段就要显式处理该异常，所以编译不通过。    
+
+在lambda表达式中无法直接抛出受检异常，这是因为lambda表达式其实是实现了一个接口（lambda表达式的原理？）
+
+# 解决方案
+从上述代码中可以发现，将受检异常用运行时异常包装一下是可以抛出的。    
+进而，考虑用泛型包装一下再抛出，相当于欺骗了一下编译器。
+```java
+  /**
+   * 包装异常，以便在匿名函数lambda中抛出受检异常
+   * @param e
+   * @param <E>
+   * @throws E
+   */
+  private static <E extends Exception> void doThrow(Exception e) throws E {
+    throw (E) e;
+  }
+
+  /**
+   * 按照给定字段属性以及排序规则给list排序。所有属性同一种排序规则。
+   * @param list
+   * @param isAsc
+   * @param sortFieldNameArr
+   * @param <E>
+   */
+  public static <E> void sort(List<E> list, final boolean isAsc, final String... sortFieldNameArr) throws Exception {
+    list.sort((a, b) -> {
+      int ret = 0;
+      try {
+        for (String s : sortFieldNameArr) {
+          ret = ListUtils.compareObject(s, isAsc, a, b);
+          if (0 != ret) {
+            break;
+          }
+        }
+      } catch (Exception e) {
+        // 抛出异常，在lambda中直接抛出受检异常是不阔以的
+        doThrow(e);
+      }
+      return ret;
+    });
+  }
+```
+
+# 参考文档
+- <https://www.jianshu.com/p/a3855f880ff2>
