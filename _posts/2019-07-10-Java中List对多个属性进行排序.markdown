@@ -17,7 +17,7 @@ categories: Java-Utils
   
 # 代码实现
 ```java
-package com.netease.bdms.smilodon.kafkamonitor.util;
+package util;
 
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
@@ -25,18 +25,24 @@ import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * @ClassName com.netease.bdms.smilodon.kafkamonitor.util.ListUtils
+ * @ClassName util.ListUtils
  * @Desciption list按元素对象多个属性排序
  * @Author Shu WJ
  * @DateTime 2019-07-09 15:50
  * @Version 1.0
  **/
 public class ListUtils {
-  private static Logger logger = LoggerFactory.getLogger(ListUtils.class);
+
+  /**
+   * 包装异常，以便在匿名函数lambda中抛出受检异常
+   * @param e
+   * @param <E>
+   * @throws E
+   */
+  private static <E extends Exception> void doThrow(Exception e) throws E {
+    throw (E) e;
+  }
 
   /**
    * 按照给定字段属性以及排序规则给list排序。所有属性同一种排序规则。
@@ -45,7 +51,7 @@ public class ListUtils {
    * @param sortFieldNameArr
    * @param <E>
    */
-  public static <E> void sort(List<E> list, final boolean isAsc, final String... sortFieldNameArr) {
+  public static <E> void sort(List<E> list, final boolean isAsc, final String... sortFieldNameArr) throws Exception {
     list.sort((a, b) -> {
       int ret = 0;
       try {
@@ -56,9 +62,8 @@ public class ListUtils {
           }
         }
       } catch (Exception e) {
-        logger.error("list sort cause a error, and the sort result maybe is worry: ", e);
-        // 如果排序逻辑对业务逻辑有相当影响，那么可以考虑终止程序
-//        throw new RuntimeException(e);
+        // 抛出异常，在lambda中直接抛出受检异常是不阔以的
+        doThrow(e);
       }
       return ret;
     });
@@ -71,7 +76,7 @@ public class ListUtils {
    * @param sortTypeArr
    * @param <E>
    */
-  public static <E> void sort(List<E> list, final String[] sortFieldNameArr, final boolean[] sortTypeArr) {
+  public static <E> void sort(List<E> list, final String[] sortFieldNameArr, final boolean[] sortTypeArr) throws Exception {
     if (sortFieldNameArr.length != sortTypeArr.length) {
       throw new IllegalArgumentException("属性数组元素个数和升降序数组元素个数不相等");
     }
@@ -85,9 +90,7 @@ public class ListUtils {
           }
         }
       } catch (Exception e) {
-        logger.error("list sort cause a error, and the sort result maybe is worry: ", e);
-        // 如果排序逻辑对业务逻辑有相当影响，那么可以考虑终止程序
-//        throw new RuntimeException(e);
+        doThrow(e);
       }
       return ret;
     });
@@ -170,6 +173,7 @@ public class ListUtils {
   }
 
 }
+
 
 ```
 
