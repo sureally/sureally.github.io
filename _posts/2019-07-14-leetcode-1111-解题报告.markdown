@@ -1,0 +1,105 @@
+---
+layout: article
+title: "leetcode-1111-解题报告"
+date: 2019-07-14 13:46:56 +0800
+categories: leetcode
+---
+
+# [题目描述](https://leetcode.com/problems/maximum-nesting-depth-of-two-valid-parentheses-strings/)
+## 介绍
+A string is a valid parentheses string (denoted VPS) if and only if it consists of `"("` and `")"` characters only, and:
+
+It is the empty string, or    
+It can be written as `AB` (`A` concatenated with `B`), where `A` and `B` are VPS's, or    
+It can be written as `(A)`, where `A` is a VPS.
+We can similarly define the nesting depth `depth(S)` of any VPS S as follows:
+
+`depth("") = 0`    
+`depth(A + B) = max(depth(A), depth(B))`, where `A` and `B` are VPS's    
+`depth("(" + A + ")") = 1 + depth(A)`, where `A` is a VPS.
+For example,  `""`, `"()()"`, and `"()(()())"` are VPS's (with nesting depths 0, 1, and 2), and `")("` and `"(()"` are not VPS's.
+
+ 
+
+Given a VPS seq, split it into two disjoint subsequences `A` and `B`, such that `A` and `B` are VPS's (and `A.length + B.length = seq.length`).
+
+Now choose any such `A` and `B` such that `max(depth(A), depth(B))` is the minimum possible value.
+
+Return an answer array (of length seq.length) that encodes such a choice of `A` and `B`:  a`nswer[i] = 0` if `seq[i]` is part of `A`, else `answer[i] = 1`.  Note that even though multiple answers may exist, you may return any of them.
+
+## 示例
+- `Example1`
+```
+Input: seq = "(()())"
+Output: [0,1,1,1,1,0]
+```
+- `Example2`
+```
+Input: seq = "()(())()"
+Output: [0,0,0,1,1,0,1,1]
+```
+# 解题思路
+## 分析
+一开始理解这题花费了点时间。后来看懂了，意思大致是，输入一个VPS形式的`seq`，需要将其拆分为
+两个`VPS`，这两个VPS的`depth`取大值最小，若有多种组合，则随便返回一个组合即可。
+为了表示出你是如何拆分的，返回值为一个序列，该序列长度`result`和`seq`长度一样，如果`seq[i]`
+属于`A`，则`result[i]=0`，若`seq[i]`属于`B`，则`result[i]=1`。    
+
+最初，本人只想到了，这个题的答题方案应该是，将depth最大的VPS，拆分为原来一半depth的
+两个VPS，即可。但是，实现的时候便无法下手了。     
+
+后来，参考了别人实现的讨论，发现思路很巧秒。因为本题仅需要拆分为两个VPS，那么奇偶也是
+两个属性，即深度分别为奇数或偶数的`"()"`分到一起这样便巧妙的拆分了。
+
+## 代码
+### 实现一
+这个实现便于理解。
+```
+class Solution {
+    public int[] maxDepthAfterSplit(String seq) {
+        int evenCount = 0, oddCount = 0;
+        int[] res = new int[seq.length()];
+        for (int i = 0; i < seq.length(); i++) {
+            switch (seq.charAt(i)) {
+                case '(':
+                    if (evenCount < oddCount) {
+                        evenCount++;
+                    } else {
+                        oddCount++;
+                        res[i] = 1;
+                    }
+                    break;
+                case ')': 
+                    if (evenCount >= oddCount) {
+                        evenCount--;
+                    } else {
+                        oddCount--;
+                        res[i] = 1;
+                    }
+                    break;
+            }
+        }
+        return res;
+    }
+}
+```
+
+### 优化实现
+其实奇偶的计数变量是不需要的，因为`"("`和`")"`在`seq`中的位置可以用于计数。
+
+比如，"(()())", "("在`seq`的下标索引为奇数和偶数，决定了其在`depth`的层次为
+偶数还是奇数。
+```java
+class Solution {
+    public int[] maxDepthAfterSplit(String seq) {
+        int n = seq.length();
+        int[] res = new int[n];
+        for (int i = 0; i < n; ++i)
+            res[i] = seq.charAt(i) == '(' ? i & 1 : i & 1 ^ 1 ;
+        return res;
+    }
+}
+```
+
+# 参考文档
+- 
