@@ -40,6 +40,7 @@ Output: [0,0,0,1,1,0,1,1]
 ```
 # 解题思路
 ## 分析
+
 一开始理解这题花费了点时间。后来看懂了，意思大致是，输入一个VPS形式的`seq`，需要将其拆分为
 两个`VPS`，这两个VPS的`depth`取大值最小，若有多种组合，则随便返回一个组合即可。
 为了表示出你是如何拆分的，返回值为一个序列，该序列长度`result`和`seq`长度一样，如果`seq[i]`
@@ -54,7 +55,7 @@ Output: [0,0,0,1,1,0,1,1]
 ## 代码
 ### 实现一
 这个实现便于理解。
-```
+```java
 class Solution {
     public int[] maxDepthAfterSplit(String seq) {
         int evenCount = 0, oddCount = 0;
