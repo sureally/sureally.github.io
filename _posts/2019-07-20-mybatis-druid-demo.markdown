@@ -8,7 +8,7 @@ categories: demo java
 # 前言
 java/mysql/mybatis/druid的一个使用demo项目。
 
-- mybatis
+- mybatis 持久层框架
 
 - druid 数据库连接池
 
