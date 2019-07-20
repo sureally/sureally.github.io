@@ -18,6 +18,61 @@ java/mysql/mybatis/druid的一个使用demo项目。
 
 ## 项目结构
 
+### pom.xml
+
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>demo</artifactId>
+    <groupId>org.shushu</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>mybatis-druid-demo</artifactId>
+  <description>mybatis-druid-demo, mybatis 与 mysql数据库连接池的demo</description>
+
+  <properties>
+    <java.version>1.8</java.version>
+    <encoding>UTF-8</encoding>
+<!--    避免idea 每次都恢复到1.5等级 -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.5.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>druid</artifactId>
+      <version>1.1.16</version>
+    </dependency>
+
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.16</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.8</version>
+    </dependency>
+  </dependencies>
+</project>
+```
+
+### 结构截图
 ![image]({{site.url}}/assets/images/2019/07/mybatis-druid-demo-structure.png)
 
 ## 文件详情
