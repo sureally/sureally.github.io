@@ -308,7 +308,7 @@ public interface UserDao {
 
 # 链接
 
--[github](https://github.com/sureally/demo/tree/99d0a22e5c1dd45defaa6215a2b98fe7ae59fa7b/mybatis-druid-demo)
+- [github](https://github.com/sureally/demo/tree/99d0a22e5c1dd45defaa6215a2b98fe7ae59fa7b/mybatis-druid-demo)
 
 # 参考文档
 -
