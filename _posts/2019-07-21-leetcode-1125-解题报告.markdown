@@ -218,8 +218,8 @@ public class SmallestSufficientTeam {
     }
 
     // 记录状态转移历史。。
-    // [0]: skills
-    // [1]: people
+    // [j|k][0]: skills
+    // [j|k][1]: people
     int[][] recordTransferHistory = new int[target + 1][2];
 
     // 动态规划，递归公式：ans[j|k] = 不加入i(ans[j|k])/加入i(ans[j] + 1))
