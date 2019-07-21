@@ -170,6 +170,100 @@ public class SmallestSufficientTeam {
 
 ### 动态规划2
 
+优化后的
+
+```java
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @ClassName leetcode.hard.SmallestSufficientTeam
+ * @Desciption
+ * @Author Shu WJ
+ * @DateTime 2019-07-21 12:54
+ * @Version 1.0
+ **/
+public class SmallestSufficientTeam {
+
+  private static int[] smallestSufficientTeam(String[] req_skills, List<List<String>> people) {
+    Map<String, Integer> reqSkill = new HashMap<>();
+    int sn = req_skills.length;
+    int pn = people.size();
+    for (int i = 0; i < sn; i++) {
+      reqSkill.put(req_skills[i], i);
+    }
+    int[] encodeSkillForPeople = new int[pn];
+    for (int i = 0; i < pn; i++) {
+      int encode = 0;
+      for (String skill : people.get(i)) {
+        if (!reqSkill.containsKey(skill)) {
+          continue;
+        }
+        // 将people拥有的技能编码；就是每个技能占据一个比特位
+        encode |= 1 << reqSkill.get(skill);
+      }
+      encodeSkillForPeople[i] = encode;
+    }
+
+    // target skills encode;
+    int target = (1 << sn) - 1;
+
+    int[] ans = new int[target + 1];
+    for (int j = 1; j <= target; j++) {
+      ans[j] = Integer.MAX_VALUE / 2;
+    }
+
+    // 记录状态转移历史。。
+    int[][] recordTransferHistory = new int[target + 1][2];
+
+    // 动态规划，递归公式：ans[j|k] = 不加入i(ans[j|k])/加入i(ans[j] + 1))
+    for (int i = 0; i < pn; i++) {
+      int k = encodeSkillForPeople[i];
+      for (int j = target; j >= 0; j--) {
+        if (ans[j] + 1 < ans[j|k]) {
+          recordTransferHistory[j|k][0] = j;
+          recordTransferHistory[j|k][1] = i;
+          ans[j|k] = ans[j] + 1;
+        }
+      }
+    }
+
+    int[] res = new int[ans[target]];
+    int tmpTarget = target;
+    int i = 0;
+    while (tmpTarget > 0) {
+      res[i++] = recordTransferHistory[tmpTarget][1];
+      tmpTarget = recordTransferHistory[tmpTarget][0];
+    }
+
+    return res;
+  }
+
+
+  public static void main(String[] args) {
+    String[] reqSkills = new String[]{"java","nodejs","reactjs"};
+    List<List<String>> people = new ArrayList<>();
+    List<String> list1 = new ArrayList<>();
+    list1.add("java");
+    List<String> list2 = new ArrayList<>();
+    list2.add("nodejs");
+    List<String> list3 = new ArrayList<>();
+    list3.add("nodejs");
+    list3.add("reactjs");
+    people.add(list1);
+    people.add(list2);
+    people.add(list3);
+
+    System.out.println(Arrays.toString(smallestSufficientTeam(reqSkills, people)));
+  }
+}
+
+```
+
 
 ### DP+剪枝
 
