@@ -1,0 +1,177 @@
+---
+layout: article
+title: "leetcode 1125 解题报告"
+date: 2019-07-21 17:30:16 +0800
+categories: leetcode
+---
+
+# [题目描述](https://leetcode.com/problems/smallest-sufficient-team/)
+## 介绍
+
+In a project, you have a list of required skills `req_skills`, and a list of people.  
+The i-th person `people[i]` contains a list of skills that person has.
+
+Consider a sufficient team: a set of people such that for every required skill in `req_skills`, 
+there is at least one person in the team who has that skill.  We can represent these teams by 
+the index of each person: for example, `team = [0, 1, 3]` represents the people with skills 
+`people[0]`,` people[1]`, and `people[3]`.
+
+Return any sufficient team of the smallest possible size, represented by the index of each 
+person.
+
+You may return the answer in any order.  It is guaranteed an answer exists.
+
+Constraints:
+
+- `1 <= req_skills.length <= 16`
+- `1 <= people.length <= 60`
+- `1 <= people[i].length, req_skills[i].length, people[i][j].length <= 16`
+- Elements of `req_skills` and `people[i]` are (respectively) distinct.
+- `req_skills[i][j]`, `people[i][j][k]` are lowercase English letters.
+- It is guaranteed a sufficient team exists.
+
+
+## 示例
+
+### 示例1
+
+```
+Input: req_skills = ["java","nodejs","reactjs"], people = [["java"],["nodejs"],["nodejs","reactjs"]]
+Output: [0,2]
+```
+
+### 示例2
+
+```
+Input: req_skills = ["algorithms","math","java","reactjs","csharp","aws"], people = [["algorithms","math","java"],["algorithms","math","reactjs"],["java","csharp","aws"],["reactjs","csharp"],["csharp","math"],["aws","java"]]
+Output: [1,2]
+```
+
+# 解题思路
+## 分析
+
+
+## 代码
+
+### 动态规划1
+
+实现比较糟糕的动态规划。
+
+```java
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class SmallestSufficientTeam {
+
+  private static int[] smallestSufficientTeam(String[] req_skills, List<List<String>> people) {
+    Map<String, Integer> reqSkill = new HashMap<>();
+    int sn = req_skills.length;
+    int pn = people.size();
+    for (int i = 0; i < sn; i++) {
+      reqSkill.put(req_skills[i], i);
+    }
+    int[] encodeSkillForPeople = new int[pn];
+    for (int i = 0; i < pn; i++) {
+      int encode = 0;
+      for (String skill : people.get(i)) {
+        if (!reqSkill.containsKey(skill)) {
+          continue;
+        }
+        // 将people拥有的技能编码；就是每个技能占据一个比特位
+        encode |= 1 << reqSkill.get(skill);
+      }
+      encodeSkillForPeople[i] = encode;
+    }
+
+    // target skills encode;
+    int target = (1 << sn) - 1;
+    // 初始化ans;
+    // 定义是: i 表示前i个人，j 表示达到的状态即满足的技能数。
+    // ans[i][j] 组合表示的是前i个人，到达状态j，所需要的最少人数
+    // 初始状态 ans[i][0]=0 到达状态0无论前多少人所需的人数都是0；其他ans[i][j](j!=0)就是无穷大，表示不可能达到该状态。
+    int[][] ans = new int[pn + 1][target + 1];
+    for (int i = 0; i <= pn; i++) {
+      for (int j = 1; j <= target; j++) {
+        ans[i][j] = Integer.MAX_VALUE / 2;
+      }
+    }
+
+    // 记录状态转移历史。recordTransferHistory[i][j] 记录状态(i,j)的上一个状态的位置。
+    int[][][] recordTransferHistory = new int[pn + 1][target + 1][2];
+
+    // 动态规划，递归公式：ans[i][j|k] = 不加入i(ans[i-1][j|k])/加入i(ans[i-1][j] + 1))
+    for (int i = 1; i <= pn; i++) {
+      int k = encodeSkillForPeople[i - 1];
+      for (int j = 0; j <= target; j++) {
+        if (ans[i-1][j] < ans[i][j]) {
+          // 使得上一层记录值复制给当前层。
+          recordTransferHistory[i][j][0] = i - 1;
+          recordTransferHistory[i][j][1] = j;
+          ans[i][j] = ans[i-1][j];
+        }
+
+        if (ans[i-1][j] + 1 < ans[i-1][j|k]) {
+          if (ans[i-1][j] + 1 < ans[i][j|k]) {
+            recordTransferHistory[i][j|k][0] = i - 1;
+            recordTransferHistory[i][j|k][1] = j;
+            ans[i][j|k] = ans[i-1][j] + 1;
+          }
+        } else {
+          // 未加入 i
+          if (ans[i-1][j|k] < ans[i][j|k]) {
+            recordTransferHistory[i][j|k][0] = i-1;
+            recordTransferHistory[i][j|k][1] = j|k;
+            ans[i][j|k] = ans[i-1][j|k];
+          }
+        }
+      }
+    }
+
+    int[] res = new int[ans[pn][target]];
+    int person = pn;
+    int tmpTarget = target;
+    int i = 0;
+    while (person > 0) {
+      int prePerson = recordTransferHistory[person][tmpTarget][0];
+      int preTmpTarget= recordTransferHistory[person][tmpTarget][1];
+      if (ans[person][tmpTarget] > ans[prePerson][preTmpTarget]) {
+        res[i++] = person - 1;
+      }
+      tmpTarget = preTmpTarget;
+      person = prePerson;
+    }
+
+    return res;
+  }
+
+
+  public static void main(String[] args) {
+    String[] reqSkills = new String[]{"java","nodejs","reactjs"};
+    List<List<String>> people = new ArrayList<>();
+    List<String> list1 = new ArrayList<>();
+    list1.add("java");
+    List<String> list2 = new ArrayList<>();
+    list2.add("nodejs");
+    List<String> list3 = new ArrayList<>();
+    list3.add("nodejs");
+    list3.add("reactjs");
+    people.add(list1);
+    people.add(list2);
+    people.add(list3);
+
+    System.out.println(Arrays.toString(smallestSufficientTeam(reqSkills, people)));
+  }
+}
+
+```
+
+### 动态规划2
+
+
+### DP+剪枝
+
+# 参考文档
+- https://www.bilibili.com/video/av59384486?from=search&seid=15195473056126919441
