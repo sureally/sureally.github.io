@@ -1,0 +1,124 @@
+---
+layout: article
+title: "leetcode 1138 解题报告"
+date: 2019-08-08 00:58:20 +0800
+categories: leetcode
+---
+
+# [题目描述](https://leetcode-cn.com/problems/alphabet-board-path/)
+## 介绍
+
+On an alphabet board, we start at position `(0, 0)`, corresponding to character `board[0][0]`.
+
+Here, `board = ["abcde", "fghij", "klmno", "pqrst", "uvwxy", "z"]`, as shown in the diagram below.
+
+
+
+We may make the following moves:
+
+`'U'` moves our position up one row, if the position exists on the board;
+`'D'` moves our position down one row, if the position exists on the board;
+`'L'` moves our position left one column, if the position exists on the board;
+`'R'` moves our position right one column, if the position exists on the board;
+`'!'` adds the character `board[r][c]` at our current position `(r, c)` to the answer.
+(Here, the only positions that exist on the board are positions with letters on them.)
+
+Return a sequence of moves that makes our answer equal to `target` in the minimum number of moves.  You may return any path that does so.
+
+Constraints:
+- `1 <= target.length <= 100`
+- target consists only of English lowercase letters.
+
+
+## 示例
+
+- 示例1
+```
+Input: target = "leet"
+Output: "DDR!UURRR!!DDD!"
+```
+
+- 示例2
+```
+Input: target = "code"
+Output: "RR!DDRR!UUL!R!"
+```
+
+# 解题思路
+## 分析
+
+因为字母表是固定的，所以可以直接对每个位置建立对应的坐标即可。但是值得注意的是
+字母`z`的位置特殊，无论是到达或者离开，都必须先见过`u`点。
+
+## 代码
+
+```java
+class Solution {
+    public String alphabetBoardPath(String target) {
+        int[] xPoss = new int[26];
+        int[] yPoss = new int[26];
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                xPoss[i * 5 +j] = j;
+                yPoss[i * 5 +j] = i;
+            }
+        }
+        xPoss[25] = 0;
+        yPoss[25] = 5;
+        
+        StringBuilder sb = new StringBuilder();
+        if (target.length() <= 0) {
+            return sb.toString();
+        }
+        
+        addPath(sb, true, xPoss[target.charAt(0) - 'a'] - 0);
+        addPath(sb, false, yPoss[target.charAt(0) - 'a'] - 0);
+        sb.append('!');
+        for (int i = 1; i < target.length(); i++) {
+            int curPos = target.charAt(i) - 'a';
+            int prePos = target.charAt(i - 1) - 'a';
+            if (target.charAt(i) != 'z' && target.charAt(i-1) == 'z') {
+                prePos = 'u' - 'a';
+                sb.append('U');
+            }
+            if (target.charAt(i) == 'z' && target.charAt(i-1) != 'z') {
+                curPos = 'u' - 'a';
+            }
+            addPath(sb, true, xPoss[curPos] - xPoss[prePos]);
+            addPath(sb, false, yPoss[curPos] - yPoss[prePos]);
+            if (target.charAt(i) == 'z' && target.charAt(i-1) != 'z') {
+                sb.append('D');
+            }
+            sb.append('!');
+        }
+        return sb.toString();
+    }
+    
+    private void addPath(StringBuilder sb, boolean isX, int num) {
+        if (isX) {
+            if (num > 0) {
+                addOnePath(sb, num, 'R');
+            } else {
+                addOnePath(sb, num, 'L');
+            }
+        } else {
+            if (num > 0) {
+                addOnePath(sb, num, 'D');
+            } else {
+                addOnePath(sb, num, 'U');
+            }
+        }
+    }
+    
+    private void addOnePath(StringBuilder sb, int num, char ch) {
+        int n = Math.abs(num);
+        while (n > 0) {
+            sb.append(ch);
+            n--;
+        }
+    }
+}
+```
+
+# 参考文档
+- 
