@@ -1,0 +1,49 @@
+---
+layout: article
+title: "HTTP那些事儿"
+date: 2019-08-11 17:21:30 +0800
+categories: http
+---
+
+# 前言
+
+本文将总结http协议的相关内容以及问题，将保持长期更新。
+
+# HTTP 概述
+
+# HTTP 报文
+
+# HTTP 详情
+
+## HEADER
+
+### General Header Fields
+通用header字段：请求报文和响应报文都会使用的header。
+
+- **Cache-Control 控制缓存** 
+- **Connection 连接管理、逐条header**
+- **Transfor-Encoding 报文主体的传输编码格式**
+- Upgrade 升级为其他协议
+- via 代理服务器的相关信息
+- Warning 错误和警告通知
+- Trailer 报文末端的header一览
+- Pragma 报文指令
+- Date 创建报文的日期
+
+### Request Header Fields
+请求header字段：客户端向服务器发送请求的报文时间使用的header
+
+- Accept 客户端或者代理能够处理的媒体类型
+- Accept-Encoding 优先可处理的编码格式
+- Accept-Language 优先可处理的自然语言
+- Accept-Charset 优先可以处理的字符集
+- If-Match 比较实体标记 (ETage)
+- If-None-Match 比较实体标记(ETage)与If-Match相反
+- If-Modified-Since 比较资源更新时间(Last-Modified)
+- If-Unmodified-Since 比较资源更新时间(Last-Modified)，
+与If-Modified-Since相反。即只有当资源在指定的时间没有进行过修改的情况下，
+服务器才返回请求的资源、或是接受 POST 或其他 non-safe 方法的请求。
+如果所请求的资源在指定的时间之后发生了修改，那么会返回 412 (Precondition Failed) 错误。
+
+# 参考文档
+- https://developer.mozilla.org/zh-CN/docs/Web/HTTP
