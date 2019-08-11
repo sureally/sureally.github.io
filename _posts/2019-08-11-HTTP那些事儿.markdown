@@ -8,10 +8,88 @@ categories: http
 # 前言
 
 本文将总结http协议的相关内容以及问题，将保持长期更新。
+HTTP 是用于传输诸如HTML的超媒体文档的应用层协议。
+
+HTTP是一种能够获取如 HTML 这样的网络资源的 protocol(通讯协议)。
+它是在 Web 上进行数据交换的基础，是一种 client-server 协议，也就是说，
+请求通常是由像浏览器这样的接受方发起的。一个完整的Web文档通常是由不同的子文档拼接而成的，
+像是文本、布局描述、图片、视频、脚本等等。
 
 # HTTP 概述
 
-# HTTP 报文
+## HTTP 组件系统
+
+## HTTP 的基本性质
+- 简单的
+- 可以扩展的: 通过header。
+- 无状态的，有会话的。
+- HTTP是应用层协议，需要底层的传输层协议。但是，不一定需要面向连接的，只需要是可靠的连接。
+主要还是使用的TCP。
+
+## HTTP 流
+
+当客户端想要和服务端进行信息交互时（服务端是指最终服务器，或者是一个中间代理），过程表现为下面几步：
+
+1. 打开一个TCP连接：TCP连接被用来发送一条或多条请求，以及接受响应消息。客户端可能打开一条新的连接，或重用一个已经存在的连接，或者也可能开几个新的TCP连接连向服务端。
+
+2. 发送一个HTTP报文：HTTP报文（在HTTP/2之前）是语义可读的。
+在HTTP/2中，这些简单的消息被封装在了帧中，这使得报文不能被直接读取，但是原理仍是相同的。
+
+3. 服务端返回报文
+
+4. 关闭连接或者为后续请求重用连接
+
+## HTTP 报文
+
+### 请求
+- 格式
+    ```bash
+    Method Path 版本号
+    Headers
+    ```
+- 元素组成
+
+  - 一个HTTP的method，经常是由一个动词像GET, POST 或者一个名词像OPTIONS，HEAD来定义客户端的动作行为。通常客户端的操作都是获取资源（GET方法）或者发送HTML form表单值（POST方法），虽然在一些情况下也会有其他操作。
+  - 要获取的资源的路径，通常是上下文中就很明显的元素资源的URL，它没有protocol （http://），domain（developer.mozilla.org），或是TCP的port（HTTP一般在80端口）。
+  HTTP协议版本号。
+  - 为服务端表达其他信息的可选头部headers。
+  - 对于一些像POST这样的方法，报文的body就包含了发送的资源，这与响应报文的body类似。
+- 示例
+    ```bash
+    GET / HTTP/1.1
+    Host: developer.mozilla.org
+    Accept-Language: fr
+    ```
+
+### 响应
+- 格式
+    ```bash
+    版本号 状态码 状态信息
+    Headers
+    空行
+    body正文
+    ```
+- 元素组成
+  - HTTP协议版本号。
+  - 一个状态码（status code），来告知对应请求执行成功或失败，以及失败的原因。
+  - 一个状态信息，这个信息是非权威的状态码描述信息，可以由服务端自行设定。
+  - HTTP headers，与请求头部类似。
+  - 可选项，比起请求报文，响应报文中更常见地包含获取的资源body。
+
+- 示例
+    ```bash
+    HTTP/1.1 200 OK
+    Date: Sat, 09 Oct 2010 14:28:02 GMT
+    Server: Apache
+    Last-Modified: Tue, 01 Dec 2009 20:18:22 GMT
+    ETag: "51142bc1-7449-479b075b2891b"
+    Accept-Ranges: bytes
+    Content-Length: 29769
+    Content-Type: text/html
+    
+    <!DOCTYPE html... (here comes the 29769 bytes of the requested web page)
+    ```
+
 
 # HTTP 详情
 
