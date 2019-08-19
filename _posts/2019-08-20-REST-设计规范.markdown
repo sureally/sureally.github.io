@@ -1,0 +1,124 @@
+---
+layout: article
+title: "REST-设计规范"
+date: 2019-08-20 00:12:33 +0800
+categories: http
+---
+
+
+# HTTP 请求规范
+
+- GET : 查询，从服务器取出资源(一项或多项)
+- POST：新增，在服务器新建一个资源
+- PUT: 覆盖，全部更新，在服务更新资源（客户端提供改变后的完整资源）
+- PATCH: 更新，在服务更新资源(客户端提供改变的属性)
+- DELETE: 删除，从服务器删除资源。
+
+# HTTP 状态码
+
+## 状态码范围
+
+- 1xx 信息，请求收到，继续处理。范围保留用于底层HTTP的东西，可能永远也用不到。
+- 2xx 成功，行为被成功地接受、理解和采纳
+- 3xx 重定向，为了完成请求，必须进一步执行的动作
+- 4xx 客户端错误，请求包含语法错误或者请求无法实现。范围保留用于响应客户端做出的错误。
+- 5xx 服务端错误。这些错误常常是从底层的函数跑出来的，甚至开发人员也没有办法处理。当收到5xx响应时，客户端不可能知道服务器的状态，所以这类状态码要尽可能避免。
+- 
+## 服务器返回的状态码和提示信息
+
+- 200 OK - GET: 服务器成功返回用户请求的数据，该操作是幂等的（Idempotent）。
+- 201 CREATED-[POST/PUT/PATCH]: 用户新建或修改数据成功。
+- 202 Accepted-[*]: 表示一个请求已经进入后台排队(异步任务)
+- 204 NO CONTENT - [DELETE]: 用户删除数据成功
+- 400 INVALID REQUEST - POST/PUT/PATCH: 用户发出的请求有错误，服务器没有进行新建或修改数据的操作，幂等操作。
+- 401 Unauthorized- [*]: 表示用户没有权限（令牌/用户名/密码错误)
+- 403 NOT FOUND - [*]: 表示用户得到授权（与401相对），但是访问是被禁止的）
+- 404 NOT FOUND - [*]: 用户发出的请求针对的是不存在的记录，服务器没有进行操作，该操作是幂等的。
+- 406 Not Accepted - [GET]: 用户请求的格式不可得（比如用户请求JSON格式，但是只有XML格式）
+- 410 Gone - [GET]: 用户请求的资源被永久删除，且不会再得到的。
+- 422 Unprocessable entity - [POST/PUT/PATCH]: 当创建一个对象时，发生一个验证错误。
+- 500 Internal server error - [*]: 服务器发生错误，用户将无法判断发出的请求是否成功。
+- 502 网关错误
+- 503 Service Unavailable 服务端当前无法处理请求
+- 504 网关超时
+
+
+# URL 规范
+## 域名
+- API与用户的通信协议，总是使用HTTPs协议
+- 应该尽量的将API部署在专用的域名之下 `https://api.example.com`
+- 项目API比较简单的放在主域名之下 `https:/example.com/api/`
+
+## 版本
+- 应该将API的版本好放在URL中
+```
+https://api.example.com/v1/
+https://example.com/api/v1/
+```
+
+## 命名
+- 网址中不能有动词，只能有名词，而且所用的名词往往与数据库的表格名对应
+- 数据库中的表都是同种记录的"集合"，所以API中的名词也应该是使用复数
+- 尽量不要使用大写，单词间使用下划线'_'
+- url层级大于或者等于三层，则使用'?'带参数
+
+
+# 返回数据规范
+## 返回错误格式
+- 客户端错误，状态码是4xx，就应该向用户返回出错的信息
+- 错误代码根据"状态码&错误码"的方式返回
+```
+{
+    status: 400,
+    error_code: 40006,
+    error: "Invalid API key"s
+}
+```
+
+## 返回结果格式
+```
+{
+    status: 200,
+    data: []||{},
+    msg: '提示信息'
+}
+```
+
+# Hypermedia API
+- RESTFul Api 最好做到Hypermedia，即返回结果中提供链接，连向其他API方法，使得用户不查文档，也知道下一步做什么。
+- Github的API就是这种设计，访问api.github.com就会得到所有可用API的网址列表。
+```
+{
+    "current_user_url": "https://api.github.com/user",
+    "current_user_authorizations_html_url": "https://github.com/settings/connections/applications{/client_id}",
+    "authorizations_url": "https://api.github.com/authorizations",
+    "code_search_url": "https://api.github.com/search/code?q={query}{&page,per_page,sort,order}",
+    "commit_search_url": "https://api.github.com/search/commits?q={query}{&page,per_page,sort,order}",
+    "emails_url": "https://api.github.com/user/emails",
+    "emojis_url": "https://api.github.com/emojis",
+    "events_url": "https://api.github.com/events",
+    "feeds_url": "https://api.github.com/feeds",
+    "followers_url": "https://api.github.com/user/followers",
+    "following_url": "https://api.github.com/user/following{/target}",
+    "gists_url": "https://api.github.com/gists{/gist_id}",
+    "hub_url": "https://api.github.com/hub",
+    "issue_search_url": "https://api.github.com/search/issues?q={query}{&page,per_page,sort,order}",
+    "issues_url": "https://api.github.com/issues",
+    "keys_url": "https://api.github.com/user/keys",
+    "notifications_url": "https://api.github.com/notifications",
+    "organization_repositories_url": "https://api.github.com/orgs/{org}/repos{?type,page,per_page,sort}",
+    "organization_url": "https://api.github.com/orgs/{org}",
+    "public_gists_url": "https://api.github.com/gists/public",
+    "rate_limit_url": "https://api.github.com/rate_limit",
+    "repository_url": "https://api.github.com/repos/{owner}/{repo}",
+    "repository_search_url": "https://api.github.com/search/repositories?q={query}{&page,per_page,sort,order}",
+    "current_user_repositories_url": "https://api.github.com/user/repos{?type,page,per_page,sort}",
+    "starred_url": "https://api.github.com/user/starred{/owner}{/repo}",
+    "starred_gists_url": "https://api.github.com/gists/starred",
+    "team_url": "https://api.github.com/teams",
+    "user_url": "https://api.github.com/users/{user}",
+    "user_organizations_url": "https://api.github.com/user/orgs",
+    "user_repositories_url": "https://api.github.com/users/{user}/repos{?type,page,per_page,sort}",
+    "user_search_url": "https://api.github.com/search/users?q={query}{&page,per_page,sort,order}"
+}
+```
