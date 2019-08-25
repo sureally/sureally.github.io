@@ -26,12 +26,12 @@ private AlarmHostGroupMapper hostGroupMapper;
 ## 三种方式
 
 - 变量(field)注入
-```
+``` java
 @Autowired
 UserDao userDao;
 ```
 - 构造器注入
-```
+```java
 final UserDao userDao;
 
 @Autowired
@@ -41,7 +41,7 @@ public UserServiceImpl(UserDao userDao) {
 ```
 - set方法注入
 
-```
+```java
 private UserDao userDao;
 
 @Autowired
