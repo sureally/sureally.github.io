@@ -1,0 +1,179 @@
+---
+layout: article
+title: 如何克服CAP定理
+date: 2019/10/3 15:24
+categories: 
+---
+
+# 前言
+本文是对一篇涉及到CAP的[博客](http://nathanmarz.com/blog/how-to-beat-the-cap-theorem.html)的理解和解读。
+
+那篇blog的中心思想主要是利用不可变数据以及预处理数据的思想来克服分布式系统面临的CAP问题，
+实现架构则是批处理和流处理结合的架构，同时可以提高系统的人为容错性。
+
+## CAP定理概述
+### 含义
+> 一个分布式系统最多只能同时满足一致性（Consistency）、可用性（Availability）和分区容错性（Partition tolerance）这三项中的两项。
+
+- 一致性 C
+>更新操作成功并返回客户端完成后，所有节点在同一时间的数据完全一，即数据一致性
+- 可用性 A
+>服务一直可用，而且是正常响应时间
+- 分区容错性 P
+>分布式系统在遇到某节点或网络分区故障的时候，仍然能够对外提供
+>满足一致性和可用性的服务
+
+对于分布式系统来说，分区容错性是一定需要保证的，如果舍弃P相当于放弃
+分布式系统。
+
+### C > A
+如果选择一致性而放弃可靠性，那么有可能使得数据丢失或者服务不可用，进而
+导致用户体验差。
+
+### A > C
+如果选择可靠性而放弃一致性，那么最后实现的便是最终一致性。导致的后果便是
+写完数据后再查询得到的数据不是原来写入的数据。一旦检测到不同节点数据存在差异，
+那么便会根据时间戳来修复/更新数据，这个操作叫做(read repair)
+
+并且，该作者表明为了实现最终一致性，整个系统的实现对开发者是一件比较沉重和
+容易出错的事情。
+
+
+# 一个数据系统是什么?
+数据应用包括存储、获取数据、连接、聚合、流处理、连续计算、机器学习等等。
+但是，可以简化为一个公式    
+```shell script
+Query = Function(All Data)
+```
+
+通俗来说就是，一个数据系统是回答关于相应数据集的问题的，问题即`Queries`
+
+在上述公式中，有两个基本的概念: 数据(data)和查询(queries)。
+
+## Data
+一份Data相当于一个不可拆分的数据单元。同时，Data包含有两个重要的特性，
+分别是
+- time based
+>A piece of data is a fact that you know to be true at some moment of time
+- immutable
+>Because of its connection to a point in time, the truthfulness of a piece of data never changes
+
+在这种情况下，CRUD就只剩下CR，即数据没有更新操作只有增加和获取数据。
+之所以去掉D，是因为删除一条数据不如增加一条新数据，除非在少数情况下，
+希望能永久删除数据。
+
+## Query
+query的定义是是对一个完整数据集的函数。
+
+# Beating the CAP
+最简单的方式是，逐步在完整的数据集上执行一个query，但是现实情况下，会带来不能忍受的
+时间延迟。
+
+CAP理论的复杂性通常可以被避免，通过使用不可变数据以及提前预计算数据。
+
+如果选择一致性而放弃可靠性，有时便会导致不能读或写数据，因为放弃了部分可靠性，在
+某些情况下，一致性是必须的。
+
+如果选择可靠性而放弃一致性，在这种情况下实际上是满足的最终一致性。因为系统总是可靠可服务的，
+意味者总是可以读写。在失效的情况下，query将返回没有合并之前写入的数据，但是最终，数据将满足
+一致性即合并最新增加的数据到query中。
+
+解决CAP的关键便是，数据是不可变的。不可变数据意味着不会存在更新操作，同时一份数据在不同
+节点上不可能存在不同的副本的情况。这意味着这里没有分歧数据，时间戳向量(vector clocks)或者读修复。
+从查询的观点来看，一份数据只有存在/不存在两种状态。所以，仅仅便是数据以及在数据之上的函数。
+所以不要执行最终一致性，同时最终一致性并不妨碍整个系统。
+
+这里认为是CAP和增量更新的相互作用导致了整个系统的复杂性。增量更新和CAP理论并不能好好的协调，
+可变的数据在一个最终一致性系统中需要读修复。通过使用不可变数据以及提前计算来避免在这种复杂性。
+这样来beat CAP理论
+>What caused complexity before was the interaction between incremental updates and the CAP theorem
+
+通过上述的讨论，实际的解决方法希望包含以下四个方面。
+1. 系统需要轻松的存储和scale一个不可变同时常数增长的数据集。
+2. 最主要的写操作是添加新的不可变数据
+3. 通过在原数据上重新计算query来避免CAP带来的复杂性
+4. 系统使用增量算法将query的时延降至一个可接受的等级。
+
+
+# 解决方案
+
+## 批处理和流处理相结合。
+该文作者不是叫做的流处理而是是叫做realtime layer，在我理解而言其实就是使用流处理来满足的
+实时性。
+
+思想简单来说就是，批处理可以将数据针对查询做处理，以提供满足要求的查询性能，
+但是，批处理存在的一个问题便是需要一定长的时间才能完成处理，因此流处理可以将填补
+批处理空白的那段时间的处理。由于该文是在2011年发布的，应该当时spark和flink都不成熟，
+所以该文作者，提出的方案便是hadoop的mr进程批处理并将数据存放在elephantDB，storm进行
+流处理，并将数据存放在Cassandra(一种NoSql数据库)。
+
+## human fault tolerance
+
+在某些情况下，需要提供实时的查询通过使用NoSQL数据库以及增量算法，这意味着又回到了
+起点即分歧数据，vector clocks以及读修复相互交错的复杂情况。
+
+其实，这和一开始的情况存在着本质的不同，因为实时处理层仅仅是为了填补批处理所需要花费的
+那段时间的空白，在最终流处理的计算结果最终都会被批处理层所取代的。
+这并不意味这不需要关心流处理层的读修复和最终一致性，还是需要尽可能的提供一致性。
+但是，当make a mistake的时候，不需要永久的废弃数据，这边减轻的很大的负担。
+
+而在批处理层，仅仅只需要关系数据以及运行的数据之上的函数，这样批处理层其实是足够简单的。
+
+另外，流处理不会影响系统的人为容错性，批处理层仍然是整个系统的核心。
+
+# 垃圾回收
+由于数据是不可变的所以数据会越来越多，在一定的情况下需要删除数据。
+当然，这是很容易删除一定时间前的数据或者仅仅保留最新的数据的。
+
+# 结论
+大规模的数据系统的难点并不是CAP理论，而是增量算法以及可变数据导致了整个系统的复杂性。
+随着分布式数据库的兴起和大范围使用才失控的。
+
+该作者提出的经验是将CRUD简化为CR，同时，拆分持久性为批处理和流处理系统，同时考虑到了
+人为容错性的重要性。
+
+批/流架构还有许多值得研究的能力
+1. 算法灵活
+2. 模式迁移容易
+3. 简单的特殊分析(Easy ad-hoc analysis)
+4. 自我核验(self-auditing)
+
+还有许多工作可以提高collective处理大数据问题的能力
+1. 为批量写和随机读数据库扩展数据模型
+>Not every application is supported by a key/value data model. This is why my team is investing in expanding ElephantDB to support search, document databases, range queries, and more.
+2. 更好的批处理原语(Better batch processing primitives)
+>Hadoop is not the end-all-be-all of batch computation. It can be inefficient for certain kinds of computations. Spark is an important project doing interesting work in expanding the MapReduce paradigm.
+3. 增强读写的NoSQL数据库
+>There's room for more databases with different data models, and these projects in general will benefit from more maturation.
+4. 高等级的抽象
+>One of the most interesting areas of future work is high level abstractions that map to a batch processing component and a realtime processing component. There's no reason why you shouldn't have the conciseness of a declarative language with the robustness of the batch/realtime architecture.
+
+
+
+# 个人总结
+该文成文算比较早了，用得工具存在这局限，这篇文章主要阐述的该作者在当时对于分布式数据系统
+设计的想法，即对于批处理和实时处理相结合的解决方案。
+觉得这种方案实际使用中好不好，因为经验的缘故不太好说，但是对于这个批处理提前预处理查询语句，
+这个应该是一种较为普遍的提高查询性能的方案，但是可能并不能覆盖全部的查询功能吧，如果覆盖太多
+存储也是瓶颈了。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
