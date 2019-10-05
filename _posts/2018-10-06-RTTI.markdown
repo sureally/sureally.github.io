@@ -1,0 +1,70 @@
+---
+layout: article
+title: RTTI
+date: 2019/10/6 03:10
+categories: Java
+---
+
+
+
+# 是什么    
+
+RTTI，Runtime Type Information(运行时类型识别)，在运行时识别对象和类的信息。
+一种是，在编译期间就知道了所有的类型；另一种是反射机制，允许在运行时发现和使用类的信息。
+
+#  传统的三种形式
+
+- 类型转换(向上转型/向下转型)。Java向下转型需要强制类型转换
+- Class对象。用Class对象来获取对象的类型
+```
+Class c = Class.forName("xxx");
+Object o = c.newInstance();
+```
+- 关键字instanceof或Class.isInstance()方法。通过关键字instanceof或Class.isInstance()方法来确定对象是否属于某个特定类型的实例。
+
+# 详细解释
+## Class对象
+Class 对象包含了与类有关的信息，事实上 Java 中是用 Class 对象来创建这个类中的所有的对象的。每当编译完成，就会生成一个 Class 对象，被保存在 .class 文件中。JVM 使用 ClassLoader 来加载对象，所有的类都是在对其第一次使用（静态成员被引用，静态常量除外）或者用 new 关键字创建对象后，动态加载到 JVM 中的。所谓的动态加载也就是在被使用到时才去加载。
+
+```
+Class.forName("xxx");
+```
+
+这个方法是获取 Class 对象引用的一种方法，调用 Class.forName() 之后该类会被初始化。Class 对象中还有一个 newInstance() 的方法，可以用来创建对象新实例。除此之外，Class 对象中还有很多实用的方法，用来获取类的信息，比如获取类的接口、方法、成员变量等等。
+
+## 类字面常量
+```
+Class intClass = int.class;
+```
+
+## 泛化的Class引用
+```
+Class<Integer> intClass = int.class; // legal
+intClass = double.class; // illegal
+```
+
+## instanceof
+RTTI 除了可以确保类型转换的正确性和通过 `Class` 对象获取运行时的类型信息外，还有第三种形式，那就是 `instanceof`，可以用这个关键字来确定某个对象是不是某个类的实例
+
+# 反射
+RTTI 会在编译期打开和检查 `.class` 文件并利用这些信息做一些有用的事，而反射会在运行时打开和检查 `.class` 文件，这是 RTTI 和反射之间的真正区别。
+```
+public static void main(String[] args) throws Exception {
+    // 在编译期，Class.forName() 的结果是不可知的，只能通过反射去获取运行时的信息
+    Class<?> klass = Class.forName(args[0]);
+    Method[] methods = klass.getMethods();
+    for (Method method : methods) {
+        System.out.println(method);
+    }
+}
+```
+
+# 动态代理
+代理就是将实际对象的方法调用分离开来，从而允许我们对一些操作进行修改，或者添加额外的操作。而动态代理比代理的思想更进一步，它允许我们动态地创建代理并动态地处理对所代理方法的调用。
+
+动态代理的优点：
+1. 更强的灵活性
+2. 动态代理更为统一和简洁
+
+# 参考文档
+- https://www.jianshu.com/p/b7fea01bb64f
