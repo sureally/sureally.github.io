@@ -233,6 +233,7 @@ Object[] args, MethodProxy proxy) throws Throwable;
 ## 实现原理
 > cglib是通过继承的方式来对类进行代理，因此只能代理非final方法，同时在代理调用方法时，通过`FastClass`机制来代替JDK中通过反射查找方法的机制来加快方法的调用，`FastClass`机制则是通过对函数进行签名和建立索引来快速找到方法，相当于一个`Map<Index, Method>`。
 > 继承父类所有的公开方法，然后可以重写这些方法，在重写时对这些方法增强，这就是cglib的思想。根据里氏代换原则（LSP），父类需要出现的地方，子类可以出现，所以cglib实现的代理也是可以被正常使用的.
+
 ### 代理类源码分析
 
 ```java
