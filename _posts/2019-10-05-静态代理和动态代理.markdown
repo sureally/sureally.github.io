@@ -49,7 +49,7 @@ public interface UserManager {
 ```
 
 ## 具体实现类
-```Java
+```java
 package proxy;
 
 /**
@@ -128,7 +128,7 @@ public class Client {
 ## 动态创建代理对象的类
 >通过LogHandler代理不同类型的对象，如果把对外的接口都通过动态代理来实现，那么所有的函数调用最终都会经过invoke函数的转发，因此可以在这里做一些自己想做的操作，比如日志系统、事务、拦截器、权限控制等。这也就是AOP(面向切面编程)的基本原理。
 
-```Java
+```java
 package proxy;
 
 import java.lang.reflect.InvocationHandler;
@@ -235,7 +235,7 @@ Object[] args, MethodProxy proxy) throws Throwable;
 > 继承父类所有的公开方法，然后可以重写这些方法，在重写时对这些方法增强，这就是cglib的思想。根据里氏代换原则（LSP），父类需要出现的地方，子类可以出现，所以cglib实现的代理也是可以被正常使用的.
 ### 代理类源码分析
 
-```
+```java
 //
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by Fernflower decompiler)
@@ -505,7 +505,7 @@ public class UserManagerImpl$$EnhancerByCGLIB$$228f0aba extends UserManagerImpl 
 在CGlib反编译代码中这样生成Proxy对象
 
 在`UserManagerImpl$$EnhancerByCGLIB$$228f0aba`中
-```Java
+```java
     Class var0 = Class.forName("proxy.UserManagerImpl$$EnhancerByCGLIB$$228f0aba");
     Class var1;
     CGLIB$addUser$0$Method = ReflectUtils.findMethods(new String[]{"addUser", "(Ljava/lang/String;Ljava/lang/String;)V"}, (var1 = Class.forName("proxy.UserManagerImpl")).getDeclaredMethods())[0];
@@ -536,7 +536,7 @@ public class UserManagerImpl$$EnhancerByCGLIB$$228f0aba extends UserManagerImpl 
 
 在MethodProxy中，在代理类中使用的是
 `proxy.invokeSuper(obj, args)`来调用被代理方法.
-```
+```java
 /**
      * Invoke the original (super) method on the specified object.
      * @param obj the enhanced object, must be the object passed as the first
@@ -600,7 +600,7 @@ public class UserManagerImpl$$EnhancerByCGLIB$$228f0aba extends UserManagerImpl 
 ```
 
 在`UserManagerImpl$$EnhancerByCGLIB$$228f0aba$$FastClassByCGLIB$$f800da22`
-```
+```java
 //现在介绍下getIndex方法，FastClass方法中的getIndex方法是抽象方法
 //cglib同时生成了一个继承自FastClass的类，重写了其getIndex方法
 public int getIndex(Signature var1) {
@@ -623,7 +623,7 @@ public int getIndex(Signature var1) {
 ```
 
 在`UserManagerImpl$$FastClassByCGLIB$$dbc40b02`
-```
+```java
 // 同样的，invoke方法也是FastClass的抽象方法，被cglib生成的继承了FastClass的类重写
 //　通过index2的值，直接调用方法，省去了反射的时间消耗
 
