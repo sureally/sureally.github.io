@@ -12,7 +12,8 @@ lambda的要点就在invokedynamic这个指令了，通过invokedynamic指令生
 本文的分析主要是参考相关blog自己尝试理解的，写得比较模糊，后续理解更加深入后再更新。
 
 # Lambda表达式样例
-```Java
+
+```java
 package lambda;
 
 /**
@@ -27,7 +28,7 @@ public interface Print<T> {
 
 ```
 
-```Java
+```java
 package lambda;
 
 /**
@@ -65,7 +66,7 @@ public class lambda.Lambda {
 ```
 
 因此类似于
-```Java
+```java
 public class Lambda {
   public static void PrintString(String s, Print<String> print) {
     print.print(s);
@@ -84,7 +85,7 @@ public class Lambda {
 如何调用这个静态方法的？在执行过程中会进入这个类
 `package java.lang.invoke.LambdaMetafactory`
 
-```Java
+```java
 public class LambdaMetafactory {
     public static CallSite metafactory(MethodHandles.Lookup caller,
                                        String invokedName,
@@ -104,7 +105,8 @@ public class LambdaMetafactory {
 ```
 
 在main函数中加入下面这个语句, 在启动的时候生成的class会保存到设定的目录下面。
-```Java
+
+```java
  public static void main(String[] args) {
     // 加入这个
     System.setProperty("jdk.internal.lambda.dumpProxyClasses", "/Users/shushu/IdeaProjects/javaExample/designMode/out");
@@ -115,7 +117,8 @@ public class LambdaMetafactory {
 运行时，会将生成的内部类 class 码输出到指定的路径下
 
 反编译
-```bash
+
+```shell script
 192:lambda shushu$ javap -p Lambda\$\$Lambda\$1.class 
 final class lambda.Lambda$$Lambda$1 implements lambda.Print {
   private lambda.Lambda$$Lambda$1();
@@ -123,7 +126,7 @@ final class lambda.Lambda$$Lambda$1 implements lambda.Print {
 }
 ```
 
-```bash
+```shell script
 192:lambda shushu$ javap -c -p Lambda\$\$Lambda\$1.class 
 final class lambda.Lambda$$Lambda$1 implements lambda.Print {
   private lambda.Lambda$$Lambda$1();
@@ -145,7 +148,8 @@ final class lambda.Lambda$$Lambda$1 implements lambda.Print {
 通过上面的字节码指令可以发现实现上调用的是Lambda.lambda$main$0这个私有的静态方法
 
 因此，Lambda表达式等价于以下形式
-```
+
+```shell script
 public class Lambda {   
     public static void PrintString(String s, Print<String> print) {
         print.print(s);
@@ -166,7 +170,8 @@ public class Lambda {
 ```
 
 在反编译Lambda.class，有个invokedynamic指令，
-```Java
+
+```shell script
 192:lambda shushu$ javap -c -p Lambda.class 
 Compiled from "Lambda.java"
 public class lambda.Lambda {
@@ -205,7 +210,8 @@ public class lambda.Lambda {
 ```
 
 查看所有常量池，这里顺便简单学习如何阅读反编译的虚拟机汇编代码吧。//## 为自己添加的注释。
-```
+
+```shell script
 192:lambda shushu$ javap -v Lambda.class 
 Classfile /Users/shushu/IdeaProjects/javaExample/designMode/target/classes/lambda/Lambda.class
   Last modified 2019-10-6; size 1690 bytes   //## 最后一次修改时间
@@ -372,7 +378,7 @@ BootstrapMethods:
 如果类的常量池中存在`CONSTANT_InvokeDynamic_info`的话，那么`attributes`表中就必定有且仅有一个`BootstrapMethods`属性。`BootstrapMethods`属性是个变长的表.
 
 确实存在一个`BootstrapMethods`表，这个表中只有一个`BootstrapMethod`，它的`bootstrap_method_ref`是常量池#48，有三`个bootstrap_arguments`，分别指向常量池#49，#50和#51：
-```bash
+```shell script
 BootstrapMethods:
   0: #48 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
     Method arguments:
@@ -383,7 +389,7 @@ BootstrapMethods:
 
 
 JVM规范：
-```
+```shell script
 CONSTANT_MethodHandle_info {
     u1 tag;
     u1 reference_kind;
@@ -406,7 +412,7 @@ CONSTANT_MethodHandle_info {
 
 
 # 另一种形式的分析
-```Java
+```java
 package lambda;
 
 import java.lang.invoke.LambdaMetafactory;
@@ -432,7 +438,7 @@ public class Lambda {
 ```
 
 现在反编译，此时并没有生成静态方法
-```bash
+```shell script
 192:lambda shushu$ javap -p Lambda.class 
 Compiled from "Lambda.java"
 public class lambda.Lambda {
@@ -444,7 +450,7 @@ public class lambda.Lambda {
 ```
 
 但是同样会生成一个内部类，反编译
-```bash
+```shell script
 192:lambda shushu$ javap -p Lambda\$\$Lambda\$1.class 
 final class lambda.Lambda$$Lambda$1 implements lambda.Print {
   private final java.io.PrintStream arg$1;
