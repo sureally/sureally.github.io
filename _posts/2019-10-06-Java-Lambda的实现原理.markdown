@@ -406,7 +406,7 @@ CONSTANT_MethodHandle_info {
 
 运行时：
 
-3. `invokedynamic`指令调用`metafactory`方法，返回一`个callsite`，此`callsite`返回目标类型的一个匿名实现类（`MethodHandles.Lookup caller` 的内部类），此类关联编译时产生的方法；
+3. `invokedynamic`指令调用`metafactory`方法，返回一个`callsite`，此`callsite`返回目标类型的一个匿名实现类（`MethodHandles.Lookup caller` 的内部类），此类关联编译时产生的方法；
 4. lambda表达式调用时会调用匿名实现类`Lambda$$Lambda$1`关联的方法`lambda$main$0`
 
 
