@@ -142,7 +142,6 @@ final class lambda.Lambda$$Lambda$1 implements lambda.Print {
        4: invokestatic  #21                 // Method lambda/Lambda.lambda$main$0:(Ljava/lang/String;)V
        7: return
 }
-
 ```
 
 通过上面的字节码指令可以发现实现上调用的是Lambda.lambda$main$0这个私有的静态方法
@@ -407,7 +406,7 @@ CONSTANT_MethodHandle_info {
 
 运行时：
 
-3.` invokedynamic`指令调用`metafactory`方法，返回一`个callsite`，此`callsite`返回目标类型的一个匿名实现类（`MethodHandles.Lookup caller` 的内部类），此类关联编译时产生的方法；
+3. `invokedynamic`指令调用`metafactory`方法，返回一`个callsite`，此`callsite`返回目标类型的一个匿名实现类（`MethodHandles.Lookup caller` 的内部类），此类关联编译时产生的方法；
 4. lambda表达式调用时会调用匿名实现类`Lambda$$Lambda$1`关联的方法`lambda$main$0`
 
 
@@ -450,6 +449,7 @@ public class lambda.Lambda {
 ```
 
 但是同样会生成一个内部类，反编译
+
 ```bash
 192:lambda shushu$ javap -p Lambda\$\$Lambda\$1.class 
 final class lambda.Lambda$$Lambda$1 implements lambda.Print {
