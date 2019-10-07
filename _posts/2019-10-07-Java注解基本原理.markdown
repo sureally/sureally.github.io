@@ -1,0 +1,393 @@
+---
+layout: article
+title: Java注解基本原理
+date: 2019/10/7 21:45
+categories: Java
+---
+
+
+# 注解的本质
+> * The common interface extended by all annotation types.(所有的注解都继承自这个普通的接口)
+`public interface Annotation`
+
+注解可以在方法上，可以在类上也可以在字段属性之上，构造函数等等之上。
+
+# 解析注解
+
+## 两种形式
+1. 编译期间直接扫描
+2. 运行期间反射
+
+## 元注解
+「元注解」是用于修饰注解的注解，通常用在注解的定义上。
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Override {
+}
+```
+
+java中的「元注解」
+- `@Target`: 注解的作用目标。指明该注解可以修饰类？方法还是字段属性？等等
+- `@Retention`: 注解的生命周期
+- `@Documented`: 注解是否应该包含在JavaDoc中
+- `@Inherited`: 是否允许子类继承该注解
+
+对于`@Target`可设置的选项为`ElementType`
+```
+public enum ElementType {
+    TYPE,            // 允许作用在类、接口和枚举上
+    FIELD,           // 允许作用在属性字段上
+    METHOD,          // 允许作用在方法上
+    PARAMETER,       // 允许作用在方法参数上
+    CONSTRUCTOR,     // 允许作用在构造函数上
+    LOCAL_VARIABLE,  // 允许作用在本地局部变量上举上
+    ANNOTATION_TYPE, // 允许作用在注解上上
+    PACKAGE,         // 允许作用在包上
+    TYPE_PARAMETER,  // 允许作用在类型变量的声明语句上，Since JDK8
+    TYPE_USE         // 允许作用在使用类型的任何语句中（eg：声明语句、泛型和强制转换语句中的类型）上，Since JDK8
+}
+```
+
+对于`@Retention`可设置的选项为`RetentionPolicy`
+```java
+public enum RetentionPolicy {
+    SOURCE, // 当前注解编译期可见，不会写入 class 文件    
+    CLASS, // 类加载阶段丢弃，会写入 class 文件。默认
+    RUNTIME // 写入class文件同时在VM运行期间一直存在，可以反射获取
+}
+```
+
+# JDK 三大注解
+
+## `@Override`
+它没有任何的属性，所以并不能存储任何其他信息。它只能作用于方法之上，编译结束后将被丢弃。
+
+是一种典型的『标记式注解』，仅被编译器可知，编译器在对 java 文件进行编译成字节码的过程中，一旦检测到某个方法上被修饰了该注解，就会去匹对父类中是否具有一个同样方法签名的函数，如果不是，则不能通过编译。
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Override {
+}
+```
+
+### 疑问？
+`@Override` 这个注解实际生效的原理是什么？如果自定义一个类似的并米有这个效果。（待后续查看注解处理器）
+
+
+## `@Deprecated`
+标志性注解
+```java
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(value={CONSTRUCTOR, FIELD, LOCAL_VARIABLE, METHOD, PACKAGE, PARAMETER, TYPE})
+public @interface Deprecated {
+}
+```
+
+## `@SuppressWarnings`
+
+```java
+@Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE})
+@Retention(RetentionPolicy.SOURCE)
+public @interface SuppressWarnings {
+    String[] value();
+}
+```
+
+# 注解与反射
+
+## 虚拟机层面
+从虚拟机的层面看看，注解的本质到底是什么？
+
+### JVM规范
+JVM虚拟机规范(SE8)中，定义了一系列和注解相关的属性表，也就是说，无论是字段、方法或是类本身，如果被注解修饰了，就可以被写进字节码文件。属性表有以下几种
+- RuntimeVisibleAnnotations
+    >记录添加在类声明、字段声明或方法声明上，且运行时可见的注解
+- RuntimeInVisibleAnnotations
+    >记录添加在类声明、字段声明或方法声明上，且运行时不可见的注解
+- RuntimeVisibleParameterAnnotations
+    >记录标注在对应方法的形式参数声明，且运行时可见的注解
+- RuntimeInVisibleParameterAnnotations
+    >记录标注在对应方法的形式参数声明，且运行时不可见的方法参数注解
+- RuntimeVisibleTypeAnnotations
+    >记录了标注在对应类声明或方法声明所使用的类型上面，且运行时可见的注解。也记录了标注在对应方法体中某个表达式所使用的类型上，还记录标注在泛型类、接口、方法及构造器的类型参数上的注解。只有当某个属性表的上级结构体或者上级属性对应的声明或者表达式带有加了注解的类型，该属性表白能有这个类型。？？有点迷惑
+- RuntimeInVisibleTypeAnnotations
+    >记录了标注在对应类声明或方法声明所使用的类型上面，且运行时不可见的注解。也记录了标注在对应方法体中某个表达式所使用的类型上，还记录标注在泛型类、接口、方法及构造器的类型参数上的注解。只有当某个属性表的上级结构体或者上级属性对应的声明或者表达式带有加了注解的类型，该属性表白能有这个类型
+- AnnotationDefault
+    >注解类元素的默认值
+
+上述的可见和不可见的区别是
+> 可见: JVM 必须使这些注解可供取用，以令合适的反射API能够将它们返回给调用者。
+
+
+
+### 举例
+#### 自定义一个注解
+
+```java
+@Target({ElementType.METHOD, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MyAnnotation {
+}
+```
+
+#### 反编译
+```bash
+SHUSHU:test-classes shushu$ javap -v MyAnnotation.class 
+Classfile /Users/shushu/IdeaProjects/javaExample/designMode/target/test-classes/MyAnnotation.class
+  Last modified 2019-10-7; size 421 bytes
+  MD5 checksum 0eb39654e3cd6eee857c7604477d7f0a
+  Compiled from "MyAnnotation.java"
+public interface MyAnnotation extends java.lang.annotation.Annotation
+  minor version: 0
+  major version: 52
+  flags: ACC_PUBLIC, ACC_INTERFACE, ACC_ABSTRACT, ACC_ANNOTATION
+Constant pool:
+   #1 = Class              #16            // MyAnnotation
+   #2 = Class              #17            // java/lang/Object
+   #3 = Class              #18            // java/lang/annotation/Annotation
+   #4 = Utf8               value
+   #5 = Utf8               ()Ljava/lang/String;
+   #6 = Utf8               SourceFile
+   #7 = Utf8               MyAnnotation.java
+   #8 = Utf8               RuntimeVisibleAnnotations
+   #9 = Utf8               Ljava/lang/annotation/Target;
+  #10 = Utf8               Ljava/lang/annotation/ElementType;
+  #11 = Utf8               METHOD
+  #12 = Utf8               FIELD
+  #13 = Utf8               Ljava/lang/annotation/Retention;
+  #14 = Utf8               Ljava/lang/annotation/RetentionPolicy;
+  #15 = Utf8               RUNTIME
+  #16 = Utf8               MyAnnotation
+  #17 = Utf8               java/lang/Object
+  #18 = Utf8               java/lang/annotation/Annotation
+{
+  public abstract java.lang.String value();
+    descriptor: ()Ljava/lang/String;
+    flags: ACC_PUBLIC, ACC_ABSTRACT
+}
+SourceFile: "MyAnnotation.java"
+RuntimeVisibleAnnotations: //## 运行可见注解
+  0: #9(#4=[e#10.#11,e#10.#12])
+  1: #13(#4=e#14.#15)
+```
+#### 捕获JDK动态代理类
+```java
+import java.lang.reflect.Method;
+
+/**
+ * @Author shu wj
+ * @Date 2019/10/6 03:22
+ * @Description
+ */
+public class Test {
+
+  @MyAnnotation("Hello")
+  public static void main(String[] args) throws NoSuchMethodException {
+    // 捕获JDK动态代理类
+    System.setProperty("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
+    Class cls = Test.class;
+    Method method = cls.getMethod("main", String[].class);
+    MyAnnotation myAnnotation = method.getAnnotation(MyAnnotation.class);
+  }
+}
+```
+
+### 反编译动态代理类
+`$Proxy1`这个类是个实现了`MyAnnotation`以及继承了`Proxy`的代理类。
+```java
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
+package com.sun.proxy;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
+
+public final class $Proxy1 extends Proxy implements MyAnnotation {
+  private static Method m1;
+  private static Method m2;
+  private static Method m4;
+  private static Method m0;
+  private static Method m3;
+
+  public $Proxy1(InvocationHandler var1) throws  {
+    super(var1);
+  }
+
+  ...(重写 toString, equals, hashCode, annotationType 四个方法)
+
+  // 在注解中定义的方法，这里被重写了
+  public final String value() throws  {
+    try {
+      // invoke 在AnnotationInvocationHandler.class里面。
+      // super.h -> InvocationHandler 
+      return (String)super.h.invoke(this, m3, (Object[])null);
+    } catch (RuntimeException | Error var2) {
+      throw var2;
+    } catch (Throwable var3) {
+      throw new UndeclaredThrowableException(var3);
+    }
+  }
+
+  static {
+    try {
+      m1 = Class.forName("java.lang.Object").getMethod("equals", Class.forName("java.lang.Object"));
+      m2 = Class.forName("java.lang.Object").getMethod("toString");
+      m4 = Class.forName("MyAnnotation").getMethod("annotationType");
+      m0 = Class.forName("java.lang.Object").getMethod("hashCode");
+      m3 = Class.forName("MyAnnotation").getMethod("value");
+    } catch (NoSuchMethodException var2) {
+      throw new NoSuchMethodError(var2.getMessage());
+    } catch (ClassNotFoundException var3) {
+      throw new NoClassDefFoundError(var3.getMessage());
+    }
+  }
+}
+
+```
+
+`AnnotationInvocationHandler`
+这里的invoke就是通过方法名返回注解属性值。
+```java
+package sun.reflect.annotation;
+
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.io.ObjectInputStream.GetField;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.AnnotationFormatError;
+import java.lang.annotation.IncompleteAnnotationException;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import sun.misc.Unsafe;
+
+class AnnotationInvocationHandler implements InvocationHandler, Serializable {
+  private static final long serialVersionUID = 6182022883658399397L;
+  private final Class<? extends Annotation> type;
+  // <注解属性名称，属性上被赋上的值>
+  private final Map<String, Object> memberValues;
+  private transient volatile Method[] memberMethods = null;
+
+  AnnotationInvocationHandler(Class<? extends Annotation> var1, Map<String, Object> var2) {
+    Class[] var3 = var1.getInterfaces();
+    if (var1.isAnnotation() && var3.length == 1 && var3[0] == Annotation.class) {
+      this.type = var1;
+      this.memberValues = var2;
+    } else {
+      throw new AnnotationFormatError("Attempt to create proxy for a non-annotation type.");
+    }
+  }
+  
+  // 被代理类的任何方法的调用都会转到这里。
+  // var2: 指向被调用的实例方法
+  public Object invoke(Object var1, Method var2, Object[] var3) {
+    // 方法的简明名称
+    String var4 = var2.getName();
+    Class[] var5 = var2.getParameterTypes();
+    if (var4.equals("equals") && var5.length == 1 && var5[0] == Object.class) {
+      return this.equalsImpl(var3[0]);
+    } else if (var5.length != 0) {
+      throw new AssertionError("Too many parameters for an annotation method");
+    } else {
+      byte var7 = -1;
+      switch(var4.hashCode()) {
+      case -1776922004:
+        if (var4.equals("toString")) {
+          var7 = 0;
+        }
+        break;
+      case 147696667:
+        if (var4.equals("hashCode")) {
+          var7 = 1;
+        }
+        break;
+      case 1444986633:
+        if (var4.equals("annotationType")) {
+          var7 = 2;
+        }
+      }
+
+      switch(var7) {
+      case 0:
+        return this.toStringImpl();
+      case 1:
+        return this.hashCodeImpl();
+      case 2:
+        return this.type;
+      default:
+        // 自定义的方法从memberValues中获取。
+        Object var6 = this.memberValues.get(var4);
+        if (var6 == null) {
+          throw new IncompleteAnnotationException(this.type, var4);
+        } else if (var6 instanceof ExceptionProxy) {
+          throw ((ExceptionProxy)var6).generateException();
+        } else {
+          if (var6.getClass().isArray() && Array.getLength(var6) != 0) {
+            var6 = this.cloneArray(var6);
+          }
+
+          return var6;
+        }
+      }
+    }
+  }
+
+```
+
+# 注解处理器
+
+注解需要生效还需要注解处理器的帮助。
+
+## 举例
+
+### `@Constraint`
+`@Constraint注解配合自定义验证类型注解的开发`。
+需要引入jar: 
+```xml
+<!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
+<dependency>
+    <groupId>javax.validation</groupId>
+    <artifactId>validation-api</artifactId>
+    <version>2.0.1.Final</version>
+</dependency>
+```
+
+### `Processor`接口 以及 `AbstractProcessor`抽象类
+JDK提供了`Processor`接口。
+```java
+public interface Processor {
+    void init(ProcessingEnvironment processingEnv);
+    Set<String> getSupportedAnnotationTypes();
+    SourceVersion getSupportedSourceVersion();
+    boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv);
+    ...
+}
+```
+
+详细使用待后面研究，暂时还没有用到。
+
+# 参考文档
+- https://www.cnblogs.com/yangming1996/p/9295168.html
+- 《Java虚拟及规范(SE 8)》
+
