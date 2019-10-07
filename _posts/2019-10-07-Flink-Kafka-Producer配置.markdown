@@ -43,7 +43,7 @@ Caused by: org.apache.kafka.common.errors.TimeoutException: Expiring 43 record(s
 ## FlinkKafkaProducer初始化
 `FlinkKafkaProducer`继承了`TwoPhaseCommitSinkFunction`用于实现`exactly-once`语义，下面是其初始化代码，因为在其初始化代码中仅用到了`key.serializer`,`value.serializer`,`bootstrap.servers`,`transaction.timeout.ms`这四个配置属性，所以就天真认为flink kafka producer并不需要配置`request.timeout.ms`了。
 ```java
-public FlinkKafkaProducer(String defaultTopicId, KeyedSerializationSchema<IN> serializationSchema, Properties producerConfig, Optional<FlinkKafkaPartitioner<IN>> customPartitioner, FlinkKafkaProducer.Semantic semantic, int kafkaProducersPoolSize) {
+  public FlinkKafkaProducer(String defaultTopicId, KeyedSerializationSchema<IN> serializationSchema, Properties producerConfig, Optional<FlinkKafkaPartitioner<IN>> customPartitioner, FlinkKafkaProducer.Semantic semantic, int kafkaProducersPoolSize) {
     super(new FlinkKafkaProducer.TransactionStateSerializer(), new FlinkKafkaProducer.ContextStateSerializer());
     this.availableTransactionalIds = new LinkedBlockingDeque();
     this.writeTimestampToKafka = false;
@@ -108,11 +108,11 @@ public FlinkKafkaProducer(String defaultTopicId, KeyedSerializationSchema<IN> se
 这个是个flink继承kafka produce接口实现的flink内部的kafka producer实现类。
 
 ```java
-public class FlinkKafkaInternalProducer<K, V> implements Producer<K, V> {
+  public class FlinkKafkaInternalProducer<K, V> implements Producer<K, V> {
     ...
     public FlinkKafkaInternalProducer(Properties properties) {
-		transactionalId = properties.getProperty(ProducerConfig.TRANSACTIONAL_ID_CONFIG);
-		kafkaProducer = new KafkaProducer<>(properties);
+      transactionalId = properties.getProperty(ProducerConfig.TRANSACTIONAL_ID_CONFIG);
+      kafkaProducer = new KafkaProducer<>(properties);
 	}
     ...
 }
@@ -122,57 +122,56 @@ public class FlinkKafkaInternalProducer<K, V> implements Producer<K, V> {
 A Kafka client that publishes records to the Kafka cluster.这是kafka的producer实现，下面是其构造函数.
 
 ```java
-public class KafkaProducer<K, V> implements Producer<K, V> {
+  public class KafkaProducer<K, V> implements Producer<K, V> {
     ...
-     KafkaProducer(Map<String, Object> configs,
+    KafkaProducer(Map<String, Object> configs,
                   Serializer<K> keySerializer,
                   Serializer<V> valueSerializer,
                   Metadata metadata,
                   KafkaClient kafkaClient,
                   ProducerInterceptors interceptors,
                   Time time) {
-        ProducerConfig config = new ProducerConfig(ProducerConfig.addSerializerToConfig(configs, keySerializer,
+    ProducerConfig config = new ProducerConfig(ProducerConfig.addSerializerToConfig(configs, keySerializer,
                 valueSerializer));
-        try {
-            Map<String, Object> userProvidedConfigs = config.originals();
-            // 给到了一个实例属性变量中
-            this.producerConfig = config;
-            this.time = time;
-            ...
-            // 在这里配置包括request-timeout-ms在内部分配置。
-            int deliveryTimeoutMs = configureDeliveryTimeout(config, log);
-            ...
-            } catch (Throwable t) {
-            // call close methods if internal objects are already constructed this is to prevent resource leak. see KAFKA-2121
-            close(Duration.ofMillis(0), true);
-            // now propagate the exception
-            throw new KafkaException("Failed to construct kafka producer", t);
-        }
+    try { 
+      Map<String, Object> userProvidedConfigs = config.originals();
+      // 给到了一个实例属性变量中
+      this.producerConfig = config;
+      this.time = time;
+      ...
+      // 在这里配置包括request-timeout-ms在内部分配置。
+      int deliveryTimeoutMs = configureDeliveryTimeout(config, log);
+      ...
+    } catch (Throwable t) {
+      // call close methods if internal objects are already constructed this is to prevent resource leak. see KAFKA-2121
+      close(Duration.ofMillis(0), true);
+      // now propagate the exception
+      throw new KafkaException("Failed to construct kafka producer", t);
+      }
     }
     
     private static int configureDeliveryTimeout(ProducerConfig config, Logger log) {
-        int deliveryTimeoutMs = config.getInt(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG);
-        int lingerMs = config.getInt(ProducerConfig.LINGER_MS_CONFIG);
-        // 配置timeoutMs
-        int requestTimeoutMs = config.getInt(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG);
-
-        if (deliveryTimeoutMs < Integer.MAX_VALUE && deliveryTimeoutMs < lingerMs + requestTimeoutMs) {
-            if (config.originals().containsKey(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG)) {
-                // throw an exception if the user explicitly set an inconsistent value
-                throw new ConfigException(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG
-                    + " should be equal to or larger than " + ProducerConfig.LINGER_MS_CONFIG
-                    + " + " + ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG);
-            } else {
-                // override deliveryTimeoutMs default value to lingerMs + requestTimeoutMs for backward compatibility
-                deliveryTimeoutMs = lingerMs + requestTimeoutMs;
-                log.warn("{} should be equal to or larger than {} + {}. Setting it to {}.",
-                    ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, ProducerConfig.LINGER_MS_CONFIG,
-                    ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, deliveryTimeoutMs);
-            }
+      int deliveryTimeoutMs = config.getInt(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG);
+      int lingerMs = config.getInt(ProducerConfig.LINGER_MS_CONFIG);
+      // 配置timeoutMs
+      int requestTimeoutMs = config.getInt(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG);
+      if (deliveryTimeoutMs < Integer.MAX_VALUE && deliveryTimeoutMs < lingerMs + requestTimeoutMs) {
+        if (config.originals().containsKey(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG)) {
+          // throw an exception if the user explicitly set an inconsistent value
+          throw new ConfigException(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG
+              + " should be equal to or larger than " + ProducerConfig.LINGER_MS_CONFIG
+              + " + " + ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG);
+        } else {
+          // override deliveryTimeoutMs default value to lingerMs + requestTimeoutMs for backward compatibility
+          deliveryTimeoutMs = lingerMs + requestTimeoutMs;
+          log.warn("{} should be equal to or larger than {} + {}. Setting it to {}.",
+               ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, ProducerConfig.LINGER_MS_CONFIG,
+               ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, deliveryTimeoutMs);
         }
-        return deliveryTimeoutMs;
-    }
-    ...
+      }
+      return deliveryTimeoutMs;
+   }
+   ...
 }
 ```
 
@@ -181,26 +180,26 @@ public class KafkaProducer<K, V> implements Producer<K, V> {
 1. `TwoPhaseCommitSinkFunction#initializeState`
 
 ```java
-public void initializeState(FunctionInitializationContext context) throws Exception {
-		...
-        // 开始一个事务
-		currentTransactionHolder = beginTransactionInternal();
-		LOG.debug("{} - started new transaction '{}'", name(), currentTransactionHolder);
-	}
+  public void initializeState(FunctionInitializationContext context) throws Exception {
+    ...
+    // 开始一个事务
+    currentTransactionHolder = beginTransactionInternal();
+    LOG.debug("{} - started new transaction '{}'", name(), currentTransactionHolder);
+  }
 ```
 
 2. `TwoPhaseCommitSinkFunction#beginTransactionInternal`
 
 ```java
-private TransactionHolder<TXN> beginTransactionInternal() throws Exception {
-        // beginTransaction 仅仅是一个抽象方法具体实现在FlinkKafkaProducer
-		return new TransactionHolder<>(beginTransaction(), clock.millis());
-	}
+  private TransactionHolder<TXN> beginTransactionInternal() throws Exception {
+    // beginTransaction 仅仅是一个抽象方法具体实现在FlinkKafkaProducer
+  	return new TransactionHolder<>(beginTransaction(), clock.millis());
+  }
 ```
 
 3. `FlinkKafkaProducer#beginTransaction`
 ```java
-protected FlinkKafkaProducer.KafkaTransactionState beginTransaction() throws FlinkKafkaException {
+  protected FlinkKafkaProducer.KafkaTransactionState beginTransaction() throws FlinkKafkaException {
     switch(this.semantic) {
     case EXACTLY_ONCE:
       // 这里
@@ -252,7 +251,7 @@ protected FlinkKafkaProducer.KafkaTransactionState beginTransaction() throws Fli
 也就是说flink的kafka producer所需要配置或者说是能够配置的参数就是kafka自身producer提供的配置参数。flink仅仅是基于kafka自己实现了可以满足分布式事务的exactly-once语义的扩展。
 
 ```java
-public class ProducerConfig extends AbstractConfig {
+  public class ProducerConfig extends AbstractConfig {
     /** <code>batch.size</code> */
     public static final String BATCH_SIZE_CONFIG = "batch.size";
     private static final String BATCH_SIZE_DOC = "The producer will attempt to batch records together into fewer requests whenever multiple records are being sent"
