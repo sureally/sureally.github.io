@@ -1,3 +1,7 @@
 # blog
-# ./_posts 文件命名需要遵从格式，里面是发表的博客
-# ./assets 存放图片文件，使用{{site.url}}/assets/sreenshot.jpg
+语言集中于Java。
+框架工具集中于
+- Flink
+- Springboot
+- Kafka
+- Mybatis-Mysql
