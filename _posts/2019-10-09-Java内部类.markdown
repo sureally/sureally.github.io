@@ -1,0 +1,165 @@
+---
+layout: article
+title: Java内部类
+date: 2019/10/9 23:53
+categories: Java
+---
+
+# 内部类
+
+## 内部类为什么存在
+- 内部类方法可以访问该类定义所在作用域中的数据，包括被 private 修饰的私有数据
+- 内部类可以对同一包中的其他类隐藏起来
+- 内部类可以实现 java 单继承的缺陷
+    >简单来说，就是多个内部类，每个都继承一个类/抽象类即可。
+- 匿名内部类可以简化代码
+    >lambda系列
+
+## 内部类与外部类的关系
+- 对于非静态内部类，内部类的创建依赖外部类的实例对象，在没有外部类实例之前是无法创建内部类的
+    >普通内部类不允许有static成员，包括嵌套类（内部类的静态内部类）
+- 内部类是一个相对独立的实体，与外部类不是is-a关系(即，继承关系)
+    >一个外部类可以有多个内部类；从编译来看，内部类表现为「外部类$内部类.class」
+- 创建内部类的时刻并不依赖于外部类的创建
+    >创建一个外部类的时候不一定需要创建内部类。
+
+## 内部类的分类
+
+- 静态内部类（嵌套类）
+- 非静态内部类
+    * 员内部类
+    * 方法内部类
+    * 匿名内部类
+    
+```java
+public class ClassOuter {
+    private int noStaticInt = 1;
+    private static int STATIC_INT = 2;
+
+    public void fun() {
+        System.out.println("外部类方法");
+    }
+
+    public class InnerClass {
+        //static int num = 1; 此时编辑器会报错 非静态内部类则不能有静态成员
+        public void fun(){
+            //非静态内部类的非静态成员可以访问外部类的非静态变量。
+            System.out.println(STATIC_INT);
+            System.out.println(noStaticInt);
+        }
+    }
+
+    public static class StaticInnerClass {
+        static int NUM = 1;//静态内部类可以有静态成员
+        public void fun(){
+            System.out.println(STATIC_INT);
+            //System.out.println(noStaticInt); 此时编辑器会报 不可访问外部类的非静态变量
+        }
+    }
+}
+
+public class TestInnerClass {
+    public static void main(String[] args) {
+        //非静态内部类 创建方式1
+        ClassOuter.InnerClass innerClass = new ClassOuter().new InnerClass();
+        //非静态内部类 创建方式2
+        ClassOuter outer = new ClassOuter();
+        ClassOuter.InnerClass inner = outer.new InnerClass();
+        //静态内部类的创建方式
+        ClassOuter.StaticInnerClass staticInnerClass = new ClassOuter.StaticInnerClass();
+    }
+}
+
+```
+### 局部内部类
+>如果一个内部类只在一个方法中使用到了，那么我们可以将这个类定义在方法内部，这种内部类被称为局部内部类。其作用域仅限于该方法。
+
+需要注意的地方
+- 局部内类不允许使用访问权限修饰符 public private protected 均不允许
+- 局部内部类对外完全隐藏，除了创建这个类的方法可以访问它其他的地方是不允许访问的。
+- 局部内部类与成员内部类不同之处是它可以引用局部变量，但该成员必须声明为 final，并内部不允许修改该变量的值。（这句话并不准确，因为如果不是基本数据类型的时候，只是不允许修改引用指向的对象，而对象本身是可以被就修改的）
+
+
+```java
+public class ClassOuter {
+  private int noStaticInt = 1;
+  private static int static_int = 2;
+
+  public void fun() {
+    System.out.println("外部类方法");
+  }
+
+  public void testFunctionClass() {
+    int params = 1;
+    class FunctionClass {
+      private void fun() {
+        System.out.println("局部内部类的输出");
+        System.out.println(static_int);
+        System.out.println(noStaticInt);
+        noStaticInt++; // 应用外部类的成员变量没有问题
+        System.out.println(params);
+//        params++; 出错
+      }
+    }
+    FunctionClass functionClass = new FunctionClass();
+    functionClass.fun();
+  }
+
+  public static void main(String[] args) {
+    ClassOuter outer = new ClassOuter();
+    outer.testFunctionClass();
+    System.out.println(outer.noStaticInt);
+    System.out.println(ClassOuter.static_int);
+  }
+}
+
+```
+### 匿名内部类
+- 匿名内部类是没有访问修饰符的。
+- 匿名内部类必须继承一个抽象类或者实现一个接口
+- 匿名内部类中不能存在任何静态成员或方法
+- 匿名内部类是没有构造方法的，因为它没有类名。
+- 与局部内部相同匿名内部类也可以引用成员变量。此变量也必须声明为 final(Java 8中已经没有了这个的限制，但是一样不允许赋值)
+
+```java
+public class Button {
+
+    public void click(final int params){
+        //匿名内部类，实现的是ActionListener接口
+        new ActionListener(){
+            public void onAction(){
+                System.out.println("click action..." + params);
+            }
+        }.onAction();
+    }
+    //匿名内部类必须继承或实现一个已有的接口
+    public interface ActionListener{
+        public void onAction();
+    }
+    
+    
+
+    public static void main(String[] args) {
+        Button button=new Button();
+        button.click();
+    }
+}
+```
+
+>什么局部变量需要final修饰呢?    
+原因是：因为局部变量和匿名内部类的生命周期不同。
+匿名内部类是创建后是存储在堆中的，而方法中的局部变量是存储在Java栈中，当方法执行完毕后，就进行退栈，同时局部变量也会消失。那么此时匿名内部类还有可能在堆中存储着，那么匿名内部类要到哪里去找这个局部变量呢？    
+为了解决这个问题编译器为自动地帮我们在匿名内部类中创建了一个局部变量的备份，也就是说即使方法执结束，匿名内部类中还有一个备份，自然就不怕找不到了。    
+但是问题又来了，如果局部变量中的a不停的在变化。那么岂不是也要让备份的a变量无时无刻的变化。为了保持局部变量与匿名内部类中备份域保持一致。编译器不得不规定死这些局部域必须是常量，一旦赋值不能再发生变化了。所以为什么匿名内部类应用外部方法的域必须是常量域的原因所在了。
+特别注意：在Java8中已经去掉要对final的修饰限制，但其实只要在匿名内部类使用了，该变量还是会自动变为final类型（只能使用，不能赋值，对于引用对象来说只是不能改变其引用而已）
+
+## 在开发的过程中内部类可能引起的问题
+### 内部类会造成程序的内存泄漏
+>1. 如果一个匿名内部类没有被任何引用持有，那么匿名内部类对象用完就有机会被回收。
+
+>2. 如果内部类仅仅只是在外部类中被引用，当外部类的不再被引用时，外部类和内部类就可以都被GC回收。
+
+>3. 如果当内部类的引用被外部类以外的其他类引用时，就会造成内部类和外部类无法被GC回收的情况，即使外部类没有被引用，因为**内部类持有指向外部类的引用**）。
+
+## 参考文档
+- https://juejin.im/post/5a903ef96fb9a063435ef0c8
