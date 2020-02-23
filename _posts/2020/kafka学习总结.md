@@ -1,0 +1,94 @@
+---
+layout: article
+title: kafka学习总结
+date: 2020/2/24 04:47
+categories:
+---
+
+# Kafka介绍
+
+# Kafka架构
+
+# 数据复制与Failover
+
+## CAP理论
+
+### 含义
+
+CAP理论简单描述为：分布式系统中，一致性、可用性、分区容忍性最多同时满足两个。  
+一般来说，分区容忍性都要求，因此大多数情况下是在可用性与一致性之间做权衡，即AP和CP。
+> - Consistency 一致性
+> - Availability 可靠性
+> - Partition tolerance 分区容忍性
+
+### 一致性方案
+
+#### Master-Slave
+RDB的读写分离即为典型的Master-Slave方案。
+- 同步复制可保证强一致性但会影响可用性
+- 异步复制可保证高可用性但会降低一致性
+
+#### WNR
+N表示副本数，W表示每次写操作要保证的最少写成功的副本数，R表示每次读至少读取的副本数，当 `W+R>N` 时，可保证
+每次读取的数据至少有一个副本具有最新的更新。主要用于去中心化（P2P）的分布式系统中。
+
+- 多个写操作的属性难以保证，可能导致多副本间的写操作顺序不一致，可以通过向量时钟保证最终一致性
+
+#### Paxos及其变种
+
+> [Paxos](https://zhuanlan.zhihu.com/p/31780743)是用于一种分布式系统并且具有容错性的一致性算法，是目前业界公认能解决分布式系统一致性的问题算法之一。
+
+## Data Replication 需要解决的问题
+
+### 如何Propagate消息？
+
+每个partition是由leader+followers构成的，每个都在不同的broker中。
+- 写入数据：producer往kafka中写入数据仅会往leader中写入，副本传播kakfa的实现方式是，
+follower周期性从leader中pull数据。类似于consumer消费数据的流程。  
+- 消费数据：consumer的读取数据也是从leader中读取。
+也就是说，kafka中的followers从leader复制数据，保证leader挂掉的时候能够顶上，
+不能保证边复制数据边提供服务。
+![image](../../assets/images/2020/image.png)
+
+### 何时Commit
+> 同步复制和异步复制的区别是，什么时候通知客户端数据已经被复制好了，即commit
+kafka 保证的是，一条数据如果被commit那么即使leader挂掉那么也没有问题，因为follower存在数据。
+kafka并没有完全使用同步或者异步机制，而是ISR机制。
+
+### ISR
+leader中会维护一个与其基本保持同步的Replica列表，该列表称为ISR(in-sync Replica)，
+如果一个Follower比leader落后太多，或者超过一定时间未发起数据复制请求，则leader将其从ISR
+中移除；当ISR中所有Replica都向leader发送ACK后，此时leader即Commit；
+
+### Commit策略
+
+#### Server配置
+- `replica.lag.time.max.ms=10000`
+- `replica.lag.max.messages=4000`
+#### Topic配置
+- `min.insync.replicas=1` // 副本数
+#### Producer配置
+- `request.required.acks=0` // acks=0不用leader返回ack，相当于异步；acks=0
+等待leader返回ack；acks=-1 等待所有follower返回ack才会commit该消息。
+
+### 如何处理Replica恢复
+在第一步中，kafka让consumer只能读取到m1消息，也就commit后的消息。  
+在第四步中，m3可能会丢失，但是其实m3并没有commit所以kafka任务该消息没有存在过。
+其实，kafka还有一个重试机制，一般重试几次还未成功则消息会丢掉。这里还会产生一个问题，
+因为重试机制会导致消息的乱序，也就是说**kafka对于单个分区保证的有序性是写入时的有序性而不是
+消息发出时的有序性。**
+
+![image_kafka_failover](../../assets/images/2020/image_kafka_failover.png)
+
+### 如何处理Replica全部宕机
+
+两个策略。
+1. 等待ISR中任一Replica恢复，并选为Leader
+   - 等待时间比较长，降低可用性
+   - 或ISR中所有的Replica都无法恢复或者数据丢失，则该Partition将不可用
+2. 选择第一个恢复的Replica为新的Leader，无论是否在ISR中(kafka默认)
+   - 并未包含所有已被之前Leader Commit过的消息，因此会造成数据丢失
+   - 可用性较高
+
+
+
