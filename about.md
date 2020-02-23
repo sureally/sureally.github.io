@@ -20,4 +20,4 @@ key: page-about
 
 Thank you for your coming!   
 Maybe you could give me some suggestions about coding, 
-here is my e-mail: shu_wenjun@qq.com.
+here is my e-mail: <shu_wenjun@qq.com>.
