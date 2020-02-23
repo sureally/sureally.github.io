@@ -2,7 +2,7 @@
 layout: article
 title: kafka学习总结
 date: 2020/2/24 04:47
-categories:
+categories: kafka
 ---
 
 # Kafka介绍
