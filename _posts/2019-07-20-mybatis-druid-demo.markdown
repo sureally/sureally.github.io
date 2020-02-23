@@ -2,7 +2,8 @@
 layout: article
 title: "mybatis druid demo"
 date: 2019-07-20 14:26:08 +0800
-categories: demo java
+categories: [demo, java]
+tags: [demo, java]
 ---
 
 # 前言

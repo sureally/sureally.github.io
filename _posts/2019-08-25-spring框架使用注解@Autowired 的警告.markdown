@@ -2,7 +2,8 @@
 layout: article
 title: "Spring框架使用注解@Autowired 的警告"
 date: 2019-08-25 22:28:08 +0800
-categories: Spring
+categories: spring
+tags: spring
 ---
 
 

@@ -2,7 +2,8 @@
 layout: article
 title: "mysql insert duplicate key问题"
 date: 2019-07-20 20:09:11 +0800
-categories: java mybatis mysql
+categories: [java, mybatis, mysql]
+tags: [java, mybatis, mysql]
 ---
 
 # 问题描述

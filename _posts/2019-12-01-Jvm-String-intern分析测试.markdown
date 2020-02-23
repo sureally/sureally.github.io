@@ -2,7 +2,8 @@
 layout: article
 title: Jvm-String-intern分析测试
 date: 2019/12/1 17:11
-categories: Java jvm
+categories: [java, jvm]
+tags: [java, jvm]
 ---
 
 ```java

@@ -1,7 +1,9 @@
 ---
+layout: article
 title: "leetcode-1109 解题报告"
 date: 2019-07-09 23:13:37 +0800
 categories: leetcode
+tags: leetcode
 ---
 
 # [题目描述](https://leetcode-cn.com/problems/corporate-flight-bookings/)

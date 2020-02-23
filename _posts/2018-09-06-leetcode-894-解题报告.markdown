@@ -1,7 +1,9 @@
 ---
+layout: article
 title:  "leetcode-894 解题报告"
 date:   2018-09-06 14:51:35 +0800
 categories: leetcode
+tags: leetcode
 ---
 # [题目描述](https://leetcode.com/problems/all-possible-full-binary-trees/description
 )

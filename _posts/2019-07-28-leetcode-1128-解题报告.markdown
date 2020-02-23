@@ -3,6 +3,7 @@ layout: article
 title: "leetcode-1128-解题报告"
 date: 2019-07-28 01:08:56 +0800
 categories: leetcode
+tags: leetcode
 ---
 
 # [题目描述](https://leetcode-cn.com/problems/number-of-equivalent-domino-pairs/)

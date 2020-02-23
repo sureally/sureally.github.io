@@ -2,7 +2,8 @@
 layout: article
 title: "flink checkpoint因为hdfs失败的研究"
 date: 2019-08-24 23:32:42 +0800
-categories: flink hdfs
+categories: [flink, hdfs]
+tags: [flink, hdfs]
 ---
 
 

@@ -2,7 +2,8 @@
 layout: article
 title: HashMap-JDK8实现原理简单分析
 date: 2019/10/6 22:00
-categories: Java
+categories: java
+tags: java
 ---
 
 # 扰动函数

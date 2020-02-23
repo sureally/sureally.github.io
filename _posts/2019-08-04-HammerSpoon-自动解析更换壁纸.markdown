@@ -2,7 +2,8 @@
 layout: article
 title: "HammerSpoon-自动解析更换壁纸"
 date: 2019-08-04 14:54:38 +0800
-categories: Tool
+categories: tool
+tags: tool
 ---
 
 # [HammerSpoon](http://www.hammerspoon.org/) 介绍

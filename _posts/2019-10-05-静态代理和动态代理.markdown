@@ -2,7 +2,8 @@
 layout: article
 title: 静态代理和动态代理
 date: 2019/10/6 00:25
-categories: Java
+categories: java
+tags: java
 ---
 
 

@@ -2,7 +2,8 @@
 layout: article
 title: "Mockito 和 PowerMock初步使用"
 date: 2019-07-16 00:11:26 +0800
-categories: Java
+categories: [java, test]
+tags: [java, test]
 ---
 
 

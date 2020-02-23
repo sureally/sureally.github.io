@@ -2,7 +2,8 @@
 layout: article
 title:  "Creating and Destroying Objects"
 date:   2018-09-08 19:59:40 +0800
-categories: Java
+categories: java
+tags: java
 ---
 
 ### Item 1: 静态工厂方法替代构造函数

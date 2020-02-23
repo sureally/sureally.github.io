@@ -2,7 +2,8 @@
 layout: article
 title: Java Lambda的实现原理
 date: 2019/10/6 17:15
-categories: Java
+categories: java
+tags: java
 ---
 
 # 前言

@@ -3,6 +3,7 @@ layout: article
 title: 如何克服CAP定理
 date: 2019/10/3 15:24
 categories: 分布式
+tags: 分布式
 ---
 
 # 前言

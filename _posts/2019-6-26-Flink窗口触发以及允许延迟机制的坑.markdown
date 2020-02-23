@@ -2,7 +2,8 @@
 layout: article
 title:  "Flink窗口触发以及允许延迟机制的坑!"
 date:   2019-06-26 21:29:12 +0800
-categories: Flink
+categories: flink
+tags: flink
 ---
 
 

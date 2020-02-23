@@ -2,7 +2,8 @@
 layout: article
 title: Flink-Kafka-Producer配置
 date: 2019/10/7 17:12
-categories: Flink Kafka
+categories: [flink, kafka]
+tags: [flink, kafka]
 ---
 
 

@@ -2,7 +2,8 @@
 layout: article
 title: RTTI
 date: 2019/10/6 03:10
-categories: Java
+categories: java
+tags: java
 ---
 
 

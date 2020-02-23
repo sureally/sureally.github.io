@@ -2,7 +2,8 @@
 layout: article
 title: Json解析对象一点认识
 date: 2019/11/10 20:08
-categories: Json, Java
+categories: [json, java]
+tags: [json, java]
 ---
 
 # 问题

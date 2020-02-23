@@ -3,6 +3,7 @@ layout: article
 title: "leetcode 1138 解题报告"
 date: 2019-08-08 00:58:20 +0800
 categories: leetcode
+tags: leetcode
 ---
 
 # [题目描述](https://leetcode-cn.com/problems/alphabet-board-path/)

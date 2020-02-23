@@ -2,7 +2,8 @@
 layout: article
 title:  "Flink kafka comsuer 动态感知分区以及producer自定义partitioner"
 date:   2019-07-07 13:59:34 +0800
-categories: Flink
+categories: flink
+tags: flink
 ---
 
 # consumer 动态感知分区

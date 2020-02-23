@@ -3,6 +3,7 @@ layout: article
 title: "leetcode 1125 解题报告"
 date: 2019-07-21 17:30:16 +0800
 categories: leetcode
+tags: leetcode
 ---
 
 # [题目描述](https://leetcode.com/problems/smallest-sufficient-team/)

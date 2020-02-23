@@ -2,7 +2,8 @@
 layout: article
 title:  "记录一个Flink sink 到tsdb的一个问题"
 date:   2019-07-07 14:23:34 +0800
-categories: Flink
+categories: flink
+tags: flink
 ---
 
 # 问题表现

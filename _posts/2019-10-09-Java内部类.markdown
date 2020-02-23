@@ -2,7 +2,8 @@
 layout: article
 title: Java内部类
 date: 2019/10/9 23:53
-categories: Java
+categories: java
+tags: java
 ---
 
 # 内部类

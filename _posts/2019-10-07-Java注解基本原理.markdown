@@ -2,7 +2,8 @@
 layout: article
 title: Java注解基本原理
 date: 2019/10/7 21:45
-categories: Java
+categories: java
+tags: java
 ---
 
 
