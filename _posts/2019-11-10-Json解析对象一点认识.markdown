@@ -1,0 +1,49 @@
+---
+layout: article
+title: Json解析对象一点认识
+date: 2019/11/10 20:08
+categories: Json, Java
+---
+
+# 问题
+先引入一段测试代码，说明利用json解析出来的字符串是new出来的新对象，所以它们的都是新
+对象。毕竟反序列化，又没有方法可以避免这个大量相似对象呐？
+
+```java
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import lombok.Data;
+import org.junit.Assert;
+import org.junit.Test;
+
+/**
+ * @Author shu wj
+ * @Date 2019/10/20 19:07
+ * @Description
+ */
+public class JsonObjectTest {
+  @Test
+  public void test() {
+    Model model = new Model();
+    model.setCluster("test");
+    String json = JSON.toJSON(model).toString();
+
+    JSONObject jsonObject = JSON.parseObject(json);
+    JSONObject jsonObject2 = JSON.parseObject(json);
+
+    Assert.assertNotSame(jsonObject.getString("cluster"), jsonObject2.getString("cluster"));
+  }
+}
+
+@Data
+class Model {
+  private String cluster;
+}
+
+```
+
+# 解决
+- 尝试1  
+JDK8-20后提供的jvm的String去重命令。
+

@@ -5,3 +5,8 @@
 - Springboot
 - Kafka
 - Mybatis-Mysql
+
+本地测试命令
+```shell script
+bundle exec jekyll serve
+```
