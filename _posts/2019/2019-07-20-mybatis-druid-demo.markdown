@@ -4,6 +4,7 @@ title: "mybatis druid demo"
 date: 2019-07-20 14:26:08 +0800
 categories: [demo, java]
 tags: [demo, java]
+root-path: ../..
 ---
 
 # 前言
@@ -74,7 +75,7 @@ java/mysql/mybatis/druid的一个使用demo项目。
 ```
 
 ### 结构截图
-![image]({{site.url}}/assets/images/2019/07/mybatis-druid-demo-structure.png)
+![image](/assets/images/2019/07/mybatis-druid-demo-structure.png)
 
 ## 文件详情
 ### 配置文件

@@ -4,6 +4,7 @@ title:  "Flink窗口触发以及允许延迟机制的坑!"
 date:   2019-06-26 21:29:12 +0800
 categories: flink
 tags: flink
+root-path: ../..
 ---
 
 
@@ -474,7 +475,7 @@ final: 291542
 
 # 源码解析
 
-![image]({{site.url}}/assets/images/flink/TumblingEventTimeWindows.png)
+![image](/assets/images/flink/TumblingEventTimeWindows.png)
 
 对于TumblingEventTimeWindows来说，实现的方法
 
