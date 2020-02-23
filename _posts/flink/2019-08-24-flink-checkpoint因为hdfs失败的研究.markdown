@@ -103,7 +103,7 @@ TIME_WAIT 是这么一种状态：TCP 四次握手结束后，连接双方都不
 
 ### MSL
 - MSL:Maximum Segment Lifetime,报文网络中最大存活时间
-> RFC 793 [Postel 1981c] 指出MSL为2分钟。然而，实现中的常用值是30秒，1分钟，或2分钟
+> RFC 793 \[Postel 1981c] 指出MSL为2分钟。然而，实现中的常用值是30秒，1分钟，或2分钟
 
 ### 时间为何是2MSL
 - 保证全双工的 TCP 连接正常终止    
