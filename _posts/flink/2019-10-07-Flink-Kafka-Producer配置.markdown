@@ -12,8 +12,7 @@ tags: [flink, kafka]
 这里因一个线上异常，而对flink-connection-kafka的源码的进一步理解。
 
 ## `TimeoutException`
-```java
-org.apache.flink.streaming.connectors.kafka.FlinkKafkaException: Failed to send data to Kafka: Expiring 43 record(s) for xxxxx-task-name-7: 32322 ms has passed since last append
+<pre><code class="java">org.apache.flink.streaming.connectors.kafka.FlinkKafkaException: Failed to send data to Kafka: Expiring 43 record(s) for xxxxx-task-name-7: 32322 ms has passed since last append
 	at org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.checkErroneous(FlinkKafkaProducer.java:1000)
 	at org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.invoke(FlinkKafkaProducer.java:617)
 	at org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.invoke(FlinkKafkaProducer.java:95)
@@ -25,17 +24,16 @@ org.apache.flink.streaming.connectors.kafka.FlinkKafkaException: Failed to send 
 	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:704)
 	at java.lang.Thread.run(Thread.java:745)
 Caused by: org.apache.kafka.common.errors.TimeoutException: Expiring 43 record(s) for xxxxx-task-name-7: 32322 ms has passed since last append
-```
+</code></pre>
 
 上述问题的原因是kafka消息的callback超过的默认的`request-timeout-ms`，所有增加即可。
 
 ### 解决办法
 
 在flink 的producer同样也需要配置`request.timeout.ms`，默认值是30秒。
-```java
-  // 增大为5分钟。
-  properties.setProperty("request.timeout.ms", "600000");
-```
+<pre><code class="java">  // 增大为5分钟。
+  properties.setProperty(&quot;request.timeout.ms&quot;, &quot;600000&quot;);
+</code></pre>
 
 ## 版本
 下面的flink代码是Flink-1.9-SNAPSHOT。
