@@ -1,6 +1,6 @@
 ---
 layout: article
-title: 2020-05-12-SpringBoot事物:事物的传播
+title: 2020-05-12-SpringBoot事务
 date: 2020/5/12 22:04
 categories: [Spring]
 tags: [Spring]
