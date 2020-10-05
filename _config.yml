@@ -4,30 +4,30 @@
 # which you are expected to set up once and rarely need to edit after that.
 # For technical reasons, this file is *NOT* reloaded automatically when you use
 # 'jekyll serve'. If you change this file, please restart the server process.
-
-## !USE TEXT THEME
-#theme: jekyll-text-theme # Gem-based Jekyll Themes
-# remote_theme: kitian616/jekyll-TeXt-theme # Jekyll Remote Theme, see https://github.com/benbalter/jekyll-remote-theme for more information.
 #
 # ,--------.      ,--.   ,--. ,--.
 # '--.  .--',---.  \  `.'  /,-'  '-.
 #    |  |  | .-. :  .'    \ '-.  .-'
 #    |  |  \   --. /  .'.  \  |  |
 #    `--'   `----''--'   '--' `--'
+
+
+
+
 ## => Site Settings
 ##############################
-text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
-highlight_theme: tomorrow # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
+text_skin: forest # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
+highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
 url     : https://sureally.github.io/ # the base hostname & protocol for your site e.g. https://www.someone.com
-baseurl : # https://github.com/sureally # does not include hostname
-title   : BLOG
+baseurl : # does not include hostname
+title   : 还行 可以 挺住
 description: > # this means to ignore newlines until "Language & timezone"
-  学习使人快乐
+  还行 可以 挺住
 
 
 ## => Language and Timezone
 ##############################
-lang: # the language of your site, default as "en"
+lang: zh # the language of your site, default as "en"
 timezone: # see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the available values
 
 
@@ -35,12 +35,22 @@ timezone: # see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for
 ##############################
 author:
   type      : # "person" (default), "organization"
-  name      : Shu Wenjun
-  url       :
+  name      : 舒文君
+  url       : https://sureally.github.io/ 
   avatar    : # path or url of avatar image (square)
-  bio       : Coding and coding.
+  bio       : I am an amazing person.
   email     : shu_wenjun@qq.com
-  github    : sureally # "user_name" the last part of your profile url, e.g. https://github.com/user_name
+  facebook  : # "user_name" the last part of your profile url, e.g. https://www.facebook.com/user_name
+  twitter   : # "user_name" the last part of your profile url, e.g. https://twitter.com/user_name
+  weibo     : # "user_id"   the last part of your profile url, e.g. https://www.weibo.com/user_id/profile?...
+  googleplus: # "user_id"   the last part of your profile url, e.g. https://plus.google.com/u/0/user_id
+  telegram  : # "user_name" the last part of your profile url, e.g. https://t.me/user_name
+  medium    : # "user_name" the last part of your profile url, e.g. https://medium.com/user_name
+  zhihu     : # "user_name" the last part of your profile url, e.g. https://www.zhihu.com/people/user_name
+  douban    : # "user_name" the last part of your profile url, e.g. https://www.douban.com/people/user_name
+  linkedin  : # "user_name" the last part of your profile url, e.g. https://www.linkedin.com/in/user_name
+  github    : sureally
+  npm       : # "user_name" the last part of your profile url, e.g. https://www.npmjs.com/~user_name
 
 
 ## => GitHub Repository (if the site is hosted by GitHub)
@@ -68,20 +78,20 @@ license: CC-BY-NC-4.0 # "CC-BY-4.0", "CC-BY-SA-4.0", "CC-BY-NC-4.0", "CC-BY-ND-4
 
 ## TOC
 toc:
-  selectors: # "h1,h2,h3" (default)
+  selectors: # "h1,h2,h3,h4" (default)
 
 
 ## => Markdown Enhancements
 ##############################
 ## Mathjax
 mathjax: true # false (default), true
-mathjax_autoNumber: true # false (default), true
+mathjax_autoNumber: true  # false (default), true
 
 ## Mermaid
-mermaid: true # (default), true
+mermaid: true # false (default), true
 
 ## Chart
-chart: true # (default), true
+chart: true # false (default), true
 
 
 ## => Paginate
@@ -110,26 +120,15 @@ sharing:
 comments:
   provider: gitalk # false (default), "disqus", "gitalk", "valine", "custom"
 
-  ## Disqus
-  disqus:
-    shortname: # the Disqus shortname for the site
-
   ## Gitalk
   # please refer to https://github.com/gitalk/gitalk for more info.
   gitalk:
-    clientID    : # GitHub Application Client ID
-    clientSecret: # GitHub Application Client Secret
-    repository  : # GitHub repo
-    owner       : # GitHub repo owner
+    clientID    : 9fa94d8480daf36387a8 # GitHub Application Client ID
+    clientSecret: b0f8d4556182ed51302a174bb4c56d012e426653 # GitHub Application Client Secret
+    repository  : BlogComments # GitHub repo
+    owner       : sureally # GitHub repo owner
     admin: # GitHub repo owner and collaborators, only these guys can initialize GitHub issues, IT IS A LIST.
-    # - your GitHub Id
-
-  ## Valine
-  # please refer to https://valine.js.org/en/ for more info.
-  valine:
-    app_id      : # LeanCloud App id
-    app_key     : # LeanCloud App key
-    placeholder : # Prompt information
+      - sureally # - your GitHub Id
 
 
 ## => Pageview
@@ -172,13 +171,22 @@ highlighter : rouge
 permalink   : date
 
 exclude:
+  - CHANGELOG.md
+  - HOW_TO_RELEASE.md
   - Gemfile
   - Gemfile.lock
   - LICENSE
   - README-*.md
   - README.md
+  - gulpfile.js
   - jekyll-text-theme.gemspec
-  - /Test
+  - package-lock.json
+  - package.json
+  - /docs
+  - /node_modules
+  - /screenshots
+  - /test
+  - /vendor
 
 defaults:
   - scope:
@@ -187,11 +195,11 @@ defaults:
     values:
       layout: article
       sharing: true
-#      license: true
+      license: true
       aside:
         toc: true
       show_edit_on_github: true
-#      show_subscribe: true
+      show_subscribe: true
       pageview: true
 
 

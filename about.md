@@ -1,6 +1,7 @@
 ---
 layout: article
 titles:
+  # @start locale config
   en      : &EN       About
   en-GB   : *EN
   en-US   : *EN
@@ -15,9 +16,13 @@ titles:
   zh-HK   : *ZH_HANT
   ko      : &KO       소개
   ko-KR   : *KO
+  fr      : &FR       À propos
+  fr-BE   : *FR
+  fr-CA   : *FR
+  fr-CH   : *FR
+  fr-FR   : *FR
+  fr-LU   : *FR
+  # @end locale config
 key: page-about
 ---
 
-Thank you for your coming!   
-Maybe you could give me some suggestions about coding, 
-here is my e-mail: <shu_wenjun@qq.com>.
