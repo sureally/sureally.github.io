@@ -138,9 +138,9 @@ pageview:
 
   ## Leancloud
   leancloud:
-    app_id    : Hkqj5uOUuIGISX7F4C5GQsBD-gzGzoHsz # LeanCloud App id
-    app_key   : 7aBDyOXooBC5U3sFrdClhB6f # LeanCloud App key
-    app_class : GitHubSureallyBlog# LeanCloud App class
+    app_id    : Hkqj5uOUuIGISX7F4C5GQsBD-gzGzoHsz 
+    app_key   : 7aBDyOXooBC5U3sFrdClhB6f
+    app_class : GitHubSureallyBlog
 
 
 ## => Search
