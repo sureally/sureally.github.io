@@ -18,7 +18,7 @@
 ##############################
 text_skin: forest # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
 highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
-url     : https://sureally.github.io/ # the base hostname & protocol for your site e.g. https://www.someone.com
+url     : https://sureally.github.io # the base hostname & protocol for your site e.g. https://www.someone.com
 baseurl : # does not include hostname
 title   : 还行 可以 挺住
 description: > # this means to ignore newlines until "Language & timezone"
@@ -108,7 +108,7 @@ sources: # bootcdn (default), unpkg
 ## => Sharing
 ##############################
 sharing:
-  provider: addthis # false (default), "addtoany", "addthis", "custom"
+  provider: false # false (default), "addtoany", "addthis", "custom"
 
   ## AddThis
   addthis:
@@ -195,7 +195,6 @@ defaults:
       layout: article
       sharing: false
       license: true
-      comment: true
       aside:
         toc: true
       show_edit_on_github: true
