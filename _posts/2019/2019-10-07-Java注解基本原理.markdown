@@ -1,5 +1,6 @@
 ---
 layout: article
+key: b654e2cd-7833-41d2-b669-4078287210f7
 title: Java注解基本原理
 date: 2019/10/7 21:45
 categories: java

@@ -1,5 +1,6 @@
 ---
 layout: article
+key: cdb26ce0-4d39-4771-9f7c-4f7c93f65373
 title: Java Lambda的实现原理
 date: 2019/10/6 17:15
 categories: java

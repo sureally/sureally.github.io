@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 0ae00cdc-7854-4d96-b7c0-bc5c435df38f
 title: "leetcode 1138 解题报告"
 date: 2019-08-08 00:58:20 +0800
 categories: leetcode

@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 317cbcb0-eac4-4e6d-8efd-3b44d719f680
 title: "leetcode 1125 解题报告"
 date: 2019-07-21 17:30:16 +0800
 categories: leetcode

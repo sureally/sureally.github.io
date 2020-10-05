@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 125828b4-a139-4329-9307-c7523b908d4a
 title: 2020-05-12-SpringBoot事务
 date: 2020/5/12 22:04
 categories: [Spring]

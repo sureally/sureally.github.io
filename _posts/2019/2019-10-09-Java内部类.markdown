@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 62120511-9607-4f58-9ab9-824e0f00543b
 title: Java内部类
 date: 2019/10/9 23:53
 categories: java

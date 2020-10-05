@@ -1,5 +1,6 @@
 ---
 layout: article
+key: e2de4e1e-ba2c-43a0-8afb-f666204151e6
 title: "HammerSpoon-自动解析更换壁纸"
 date: 2019-08-04 14:54:38 +0800
 categories: tool

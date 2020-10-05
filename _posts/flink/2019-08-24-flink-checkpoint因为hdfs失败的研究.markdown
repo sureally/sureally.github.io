@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 9ee3ed2d-d544-4a3b-b0ec-a49a6c241cc6
 title: "flink checkpoint因为hdfs失败的研究"
 date: 2019-08-24 23:32:42 +0800
 categories: [flink, hdfs]

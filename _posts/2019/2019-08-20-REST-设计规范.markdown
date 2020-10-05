@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 5cf68680-0913-4cde-9e0a-85c28fd93f65
 title: "REST-设计规范"
 date: 2019-08-20 00:12:33 +0800
 categories: http

@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 2598a2ec-6f50-4376-937c-5adb45ac633b
 title: "Mockito 和 PowerMock初步使用"
 date: 2019-07-16 00:11:26 +0800
 categories: [java, test]

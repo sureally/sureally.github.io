@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 734d8182-d65c-437d-b481-ed6fab05d8d0
 title:  "Distributed Shell!"
 date:   2019-03-27 15:29:12 +0800
 categories: hadoop

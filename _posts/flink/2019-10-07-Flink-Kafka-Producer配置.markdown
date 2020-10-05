@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 3b6e6f1e-966f-4d09-a739-9edfc6b37915
 title: Flink-Kafka-Producer配置
 date: 2019/10/7 17:12
 categories: [flink, kafka]

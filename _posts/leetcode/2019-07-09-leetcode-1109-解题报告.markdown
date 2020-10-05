@@ -1,5 +1,6 @@
 ---
 layout: article
+key: d974076a-1487-4cb7-ac01-effcda3614b5
 title: "leetcode-1109 解题报告"
 date: 2019-07-09 23:13:37 +0800
 categories: leetcode

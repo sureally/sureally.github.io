@@ -1,6 +1,6 @@
 ---
-
 layout: article
+key: 9db6e2f2-882f-4190-9ea3-490c442ac438
 title: 2020-05-03-Guava-EventBus解析学习
 date: 2020/5/3 23:44
 categories: [Java, Guava]

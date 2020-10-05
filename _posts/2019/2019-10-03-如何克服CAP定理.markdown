@@ -1,5 +1,6 @@
 ---
 layout: article
+key: ea3efd54-e99b-44a3-b8c1-d65db3c7c1a7
 title: 如何克服CAP定理
 date: 2019/10/3 15:24
 categories: 分布式

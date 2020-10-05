@@ -1,5 +1,6 @@
 ---
 layout: article
+key: de7f3abc-f45f-486f-a0c1-bad54c729a8d
 title:  "Flink窗口触发以及允许延迟机制的坑!"
 date:   2019-06-26 21:29:12 +0800
 categories: flink

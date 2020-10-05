@@ -1,5 +1,6 @@
 ---
 layout: article
+key: a298d089-21bb-4fc9-981b-6868c0aa1674
 title: HashMap-JDK8实现原理简单分析
 date: 2019/10/6 22:00
 categories: java

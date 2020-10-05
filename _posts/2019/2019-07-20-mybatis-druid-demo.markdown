@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 9a022eaa-bec9-4b5c-9545-09d58e11d648
 title: "mybatis druid demo"
 date: 2019-07-20 14:26:08 +0800
 categories: [demo, java]

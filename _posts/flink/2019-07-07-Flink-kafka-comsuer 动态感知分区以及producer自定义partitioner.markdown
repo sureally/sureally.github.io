@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 93ebc81b-7a50-49e4-94d4-76c4aad553a3
 title:  "Flink kafka comsuer 动态感知分区以及producer自定义partitioner"
 date:   2019-07-07 13:59:34 +0800
 categories: flink

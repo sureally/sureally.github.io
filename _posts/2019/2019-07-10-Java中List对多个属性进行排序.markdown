@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 5d0bfcf6-40da-4199-b2e6-084b24a28275
 title: "Java中List对多个属性进行排序"
 date: 2019-07-10 00:32:55 +0800
 categories: [java, utils]

@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 00151431-e396-4f1f-9cee-bb627989926b
 title: "leetcode-1111-解题报告"
 date: 2019-07-14 13:46:56 +0800
 categories: leetcode

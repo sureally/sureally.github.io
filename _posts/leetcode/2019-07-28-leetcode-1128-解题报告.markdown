@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 8cdfce47-033d-44dc-9a2f-2a405d3e5f9c
 title: "leetcode-1128-解题报告"
 date: 2019-07-28 01:08:56 +0800
 categories: leetcode

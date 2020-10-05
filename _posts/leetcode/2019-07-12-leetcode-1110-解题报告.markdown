@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 1bade025-aa8b-41d2-8db3-86a9a26b7eb0
 title: "leetcode-1110-解题报告"
 date: 2019-07-12 02:09:13 +0800
 categories: leetcode

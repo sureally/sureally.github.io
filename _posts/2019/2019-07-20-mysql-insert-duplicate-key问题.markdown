@@ -1,5 +1,6 @@
 ---
 layout: article
+key: f5e88829-05ee-4969-acdd-25d83586e276
 title: "mysql insert duplicate key问题"
 date: 2019-07-20 20:09:11 +0800
 categories: [java, mybatis, mysql]

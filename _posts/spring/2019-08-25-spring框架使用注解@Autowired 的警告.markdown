@@ -1,5 +1,6 @@
 ---
 layout: article
+key: a132413b-f068-46b1-a13c-7b02dc0c446c
 title: "Spring框架使用注解@Autowired 的警告"
 date: 2019-08-25 22:28:08 +0800
 categories: spring

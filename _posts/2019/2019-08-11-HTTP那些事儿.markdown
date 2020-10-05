@@ -1,5 +1,6 @@
 ---
 layout: article
+key: 937ca19a-7a51-490d-ad2d-03846e4f21ca
 title: "HTTP那些事儿"
 date: 2019-08-11 17:21:30 +0800
 categories: http
