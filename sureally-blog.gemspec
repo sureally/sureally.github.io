@@ -1,13 +1,13 @@
 # coding: utf-8
 
 Gem::Specification.new do |spec|
-  spec.name          = "jekyll-text-theme"
-  spec.version       = "2.2.6"
-  spec.authors       = ["Tian Qi"]
-  spec.email         = ["kitian616@outlook.com"]
+  spec.name          = "swj-bolg"
+  spec.version       = "0.0.1"
+  spec.authors       = ["Shu Wenjun"]
+  spec.email         = ["shu_wenjun@qq.com"]
 
-  spec.summary       = %q{A super customizable Jekyll theme for personal site, team site, blog, project, documentation, etc.}
-  spec.homepage      = "https://github.com/kitian616/jekyll-TeXt-theme"
+  spec.summary       = "Blog specification"
+  spec.homepage      = "https://github.com/sureally"
   spec.license       = "MIT"
 
   spec.metadata["plugin_type"] = "theme"
@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "jekyll-sitemap", "~> 1.0"
   spec.add_runtime_dependency "jekyll-feed", "~> 0.1"
   spec.add_runtime_dependency "jemoji", "~> 0.8"
+  spec.add_runtime_dependency "kramdown-parser-gfm"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake", "~> 10.0"

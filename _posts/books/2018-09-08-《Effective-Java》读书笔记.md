@@ -1,9 +1,10 @@
 ---
 layout: article
 title:  "Creating and Destroying Objects"
+key: a9cab769-d31c-46eb-8a62-2a1b4d508db4
 date:   2018-09-08 19:59:40 +0800
-categories: java
-tags: java
+categories: [EffectiveJava, 读书笔记]
+tags: [EffectiveJava, 读书笔记]
 mathjax: true
 ---
 
