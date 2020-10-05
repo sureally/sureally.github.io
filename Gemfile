@@ -11,3 +11,5 @@ source "https://rubygems.org"
 
 gemspec
 
+gem 'jekyll-quicklatex'
+gem "jekyll-pdf-embed"
