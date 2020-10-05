@@ -138,9 +138,9 @@ pageview:
 
   ## Leancloud
   leancloud:
-    app_id    : # LeanCloud App id
-    app_key   : # LeanCloud App key
-    app_class : # LeanCloud App class
+    app_id    : Hkqj5uOUuIGISX7F4C5GQsBD-gzGzoHsz # LeanCloud App id
+    app_key   : 7aBDyOXooBC5U3sFrdClhB6f # LeanCloud App key
+    app_class : GitHubSureallyBlog# LeanCloud App class
 
 
 ## => Search
@@ -199,8 +199,8 @@ defaults:
       aside:
         toc: true
       show_edit_on_github: true
-      show_subscribe: true
-      pageview: false
+      show_subscribe: false
+      pageview: true
 
 
 ## => Plugins
